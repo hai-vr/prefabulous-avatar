@@ -10,7 +10,8 @@
         "nadena.dev.modular-avatar.core",
         "Prefabulous.Common.Runtime",
         "Prefabulous.VRC.Runtime",
-        "Prefabulous.Hai.Runtime"
+        "Prefabulous.Hai.Runtime",
+        "Resilience.Toolkit.Editor"
     ],
     "includePlatforms": [
         "Editor"

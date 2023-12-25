@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using nadena.dev.modular_avatar.core;
 using Prefabulous.Hai.Runtime;
 using UnityEditor;
 using UnityEngine;
@@ -76,6 +75,8 @@ namespace Prefabulous.VRC.Editor
 
         public override void OnInspectorGUI()
         {
+            PrefabulousLocalization.Localization.DisplayLanguageSelector();
+            
             _red = new GUIStyle(EditorStyles.textField);
             _red.normal.textColor = Color.red;
             
