@@ -107,7 +107,7 @@ namespace Prefabulous.VRC.Editor
                     {
                         name = MultiplexerValue0(),
                         networkSynced = true,
-                        valueType = VRCExpressionParameters.ValueType.Int,
+                        valueType = VRCExpressionParameters.ValueType.Float,
                         saved = false,
                         defaultValue = 0f
                     });
@@ -120,6 +120,19 @@ namespace Prefabulous.VRC.Editor
                             name = MultiplexerAddressForBit(i),
                             networkSynced = true,
                             valueType = VRCExpressionParameters.ValueType.Bool,
+                            saved = false,
+                            defaultValue = 0f
+                        });
+                    }
+                    
+                    // Optional: Visualizer
+                    if (newParams.All(parameter => parameter.name != MultiplexerVisualize()))
+                    {
+                        newParams.Add(new VRCExpressionParameters.Parameter
+                        {
+                            name = MultiplexerVisualize(),
+                            networkSynced = false,
+                            valueType = VRCExpressionParameters.ValueType.Float,
                             saved = false,
                             defaultValue = 0f
                         });
@@ -200,7 +213,7 @@ namespace Prefabulous.VRC.Editor
         {
             var aac = AacV1.Create(new AacConfiguration
             {
-                SystemName = GetType().Name,
+                SystemName = "Multiplexer",
                 AnimatorRoot = ctx.AvatarRootTransform,
                 DefaultValueRoot = ctx.AvatarRootTransform,
                 AssetKey = GUID.Generate().ToString(),
@@ -280,7 +293,13 @@ namespace Prefabulous.VRC.Editor
                 }
 
                 sendValues.DrivingLocally();
-                receiveValues.DrivingLocally();
+                
+                // BRUH DON'T DRIVE RECEIVER LOCALLY
+                // receiveValues.DrivingLocally();
+                
+                // Visualizer
+                sendValues.Drives(fx.FloatParameter(MultiplexerVisualize()), (index + 1f) / packets.Length);
+                receiveValues.Drives(fx.FloatParameter(MultiplexerVisualize()), (index + 1f) / packets.Length);
 
                 // Sender focuses on next
                 sendValues
@@ -300,22 +319,22 @@ namespace Prefabulous.VRC.Editor
                 foreach (var packetParameter in packet.parameters)
                 {
                     var magicallyTypedParam = silently.IntParameter(packetParameter.name);
-                    switch (packetParameter.animatorDeclaredType)
+                    var value = fx.FloatParameter(MultiplexerValue0());
+                    switch (packetParameter.expressionParameterDeclaredType)
                     {
-                        case AnimatorControllerParameterType.Float:
-                            sendValues.DrivingRemaps(magicallyTypedParam, -1, 1, fx.IntParameter(MultiplexerValue0()), 0, 255);
-                            receiveValues.DrivingRemaps(fx.IntParameter(MultiplexerValue0()), 0, 255, magicallyTypedParam, -1, 1);
+                        case VRCExpressionParameters.ValueType.Float:
+                            sendValues.DrivingCopies(magicallyTypedParam, value);
+                            receiveValues.DrivingCopies(value, magicallyTypedParam);
                             break;
-                        case AnimatorControllerParameterType.Int:
-                            sendValues.DrivingCopies(magicallyTypedParam, fx.IntParameter(MultiplexerValue0()));
-                            receiveValues.DrivingCopies(fx.IntParameter(MultiplexerValue0()), magicallyTypedParam);
+                        case VRCExpressionParameters.ValueType.Int:
+                            // FIXME: Int casting is not accurate
+                            sendValues.DrivingRemaps(magicallyTypedParam, 0, 255, value, -1, 1);
+                            receiveValues.DrivingRemaps(value, -1, 1, magicallyTypedParam, 0, 255);
                             break;
-                        case AnimatorControllerParameterType.Bool:
+                        case VRCExpressionParameters.ValueType.Bool:
                             // TODO: Bool packing
-                            sendValues.DrivingRemaps(magicallyTypedParam, 0, 1, fx.IntParameter(MultiplexerValue0()), 0, 1);
-                            receiveValues.DrivingRemaps(fx.IntParameter(MultiplexerValue0()), 0, 1, magicallyTypedParam, 0, 1);
-                            break;
-                        case AnimatorControllerParameterType.Trigger:
+                            sendValues.DrivingCopies(magicallyTypedParam, value);
+                            receiveValues.DrivingCopies(value, magicallyTypedParam);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -356,17 +375,22 @@ namespace Prefabulous.VRC.Editor
 
         private string MultiplexerAddressForBit(int i)
         {
-            return $"Multiplexer/Address/b{i}";
+            return $"Mux/Address/b{i}";
         }
 
         private static string MultiplexerValue0()
         {
-            return "Multiplexer/Value";
+            return "Mux/Value";
         }
 
         private static string MultiplexerFocus()
         {
-            return "Multiplexer/Focus";
+            return "Mux/Focus";
+        }
+
+        private static string MultiplexerVisualize()
+        {
+            return "Mux/Visualize";
         }
     }
 
