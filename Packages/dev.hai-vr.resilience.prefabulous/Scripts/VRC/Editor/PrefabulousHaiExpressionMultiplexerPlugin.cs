@@ -105,7 +105,7 @@ namespace Prefabulous.VRC.Editor
                     var newParams = expressionParameters.parameters.ToList();
                     newParams.Add(new VRCExpressionParameters.Parameter
                     {
-                        name = MultiplexerValue0(),
+                        name = MultiplexerValue(0),
                         networkSynced = true,
                         valueType = VRCExpressionParameters.ValueType.Float,
                         saved = false,
@@ -125,12 +125,12 @@ namespace Prefabulous.VRC.Editor
                         });
                     }
                     
-                    // Optional: Visualizer
-                    if (newParams.All(parameter => parameter.name != MultiplexerVisualize()))
+                    // Optional: Progress bar
+                    if (newParams.All(parameter => parameter.name != MultiplexerProgress()))
                     {
                         newParams.Add(new VRCExpressionParameters.Parameter
                         {
-                            name = MultiplexerVisualize(),
+                            name = MultiplexerProgress(),
                             networkSynced = false,
                             valueType = VRCExpressionParameters.ValueType.Float,
                             saved = false,
@@ -141,7 +141,6 @@ namespace Prefabulous.VRC.Editor
                     expressionParameters.parameters = newParams.ToArray();
                     
                     // TODO: Group up lowUpdateRateParams by type to send in bulks
-                    // TODO: Handle more than one address bit
                     // TODO: Handle having more than 8 bits of bandwidth for the value part
                     // TODO: Handle having less than 8 bits of bandwidth for the value part
                     // TODO: Handle having a non-multiple of 8 bits of bandwidth for the value part
@@ -174,18 +173,47 @@ namespace Prefabulous.VRC.Editor
                     };
                 })
                 .ToArray();
+
+            var floatAndIntParams = paramUnits.Where(unit => unit.expressionParameterDeclaredType != VRCExpressionParameters.ValueType.Bool).ToList();
+            var boolParams = new Queue<ParamUnit>(paramUnits.Where(unit => unit.expressionParameterDeclaredType == VRCExpressionParameters.ValueType.Bool).ToArray());
             
-            // FIXME: Naive packettization
-            var packetUnits = paramUnits
-                .Select(paramUnit => new PacketUnit
+            var packets = new List<PacketUnit>();
+            foreach (var param in floatAndIntParams)
+            {
+                packets.Add(new PacketUnit
                 {
-                    parameters = new[] { paramUnit }
-                })
-                .ToArray();
+                    parameters = new[] { param },
+                    kind = PacketKind.Single
+                });
+            }
+            
+            while (boolParams.Count > 0)
+            {
+                var parameters = new List<ParamUnit>();
+                // We don't have LINQ Chunk?
+                while (parameters.Count < 8 && boolParams.Count > 0)
+                {
+                    parameters.Add(boolParams.Dequeue());
+                }
+                packets.Add(new PacketUnit
+                {
+                    parameters = parameters.ToArray(),
+                    kind = PacketKind.Bools
+                });
+            }
+
+            // FIXME: Naive packettization
+            // var packetUnits = paramUnits
+            //     .Select(paramUnit => new PacketUnit
+            //     {
+            //         parameters = new[] { paramUnit }
+            //     })
+            //     .ToArray();
 
             return new Packettization
             {
-                packets = packetUnits
+                // packets = packetUnits
+                packets = packets.ToArray()
             };
         }
 
@@ -228,6 +256,8 @@ namespace Prefabulous.VRC.Editor
             var fx = aac.CreateMainArbitraryControllerLayer(ctrl);
 
             var focus = fx.IntParameter(MultiplexerFocus());
+            var progressBar = fx.FloatParameter(MultiplexerProgress());
+            
             var init = fx.NewState("Init")
                 .Drives(focus, 1);
 
@@ -262,9 +292,6 @@ namespace Prefabulous.VRC.Editor
                 var packetReceiver = fx.NewSubStateMachine($"Receive Packet {packetNumber}")
                     .Shift(receiver, -1, packetNumber);
 
-                var sendValues = packetSender.NewState("Send Values");
-                var receiveValues = packetReceiver.NewState("Receive Values");
-
                 // We don't want to create the original animator params if they already exist, as the animator may be making use of implicit casts.
                 var silently = aac.NoAnimator();
                 
@@ -287,58 +314,58 @@ namespace Prefabulous.VRC.Editor
                             default:
                                 throw new ArgumentOutOfRangeException();
                         }
-                    
-                        // FIXME: We need to know the parameter type!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     }
-                }
-
-                sendValues.DrivingLocally();
-                
-                // BRUH DON'T DRIVE RECEIVER LOCALLY
-                // receiveValues.DrivingLocally();
-                
-                // Visualizer
-                sendValues.Drives(fx.FloatParameter(MultiplexerVisualize()), (index + 1f) / packets.Length);
-                receiveValues.Drives(fx.FloatParameter(MultiplexerVisualize()), (index + 1f) / packets.Length);
-
-                // Sender focuses on next
-                sendValues
-                    .Drives(focus, index == packets.Length - 1 ? 1 : packetNumber + 1);
-
-                // Sender focuses on current (for informative purposes only, this isn't used to drive internal state)
-                receiveValues
-                    .Drives(focus, packetNumber);
-
-                // Set address
-                for (var i = 0; i < numberOfBitsRequiredToEncodeAddress; i++)
-                {
-                    sendValues.Drives(fx.BoolParameter(MultiplexerAddressForBit(i)), ExtractBitFromPacketNumber(packetNumber, i));
                 }
 
                 // Send and receive value
-                foreach (var packetParameter in packet.parameters)
+                if (packet.kind == PacketKind.Single)
                 {
-                    var magicallyTypedParam = silently.IntParameter(packetParameter.name);
-                    var value = fx.FloatParameter(MultiplexerValue0());
-                    switch (packetParameter.expressionParameterDeclaredType)
+                    var sendValues = packetSender.NewState("Send Values");
+                    sendValues.Drives(focus, index == packets.Length - 1 ? 1 : packetNumber + 1); // Sender focuses on next
+                    sendValues.Drives(progressBar, (index + 1f) / packets.Length);
+                    sendValues.DrivingLocally(); // Only the sender should drive locally. This is technically not necessary
+                    for (var i = 0; i < numberOfBitsRequiredToEncodeAddress; i++)
                     {
-                        case VRCExpressionParameters.ValueType.Float:
-                            sendValues.DrivingCopies(magicallyTypedParam, value);
-                            receiveValues.DrivingCopies(value, magicallyTypedParam);
-                            break;
-                        case VRCExpressionParameters.ValueType.Int:
-                            // FIXME: Int casting is not accurate
-                            sendValues.DrivingRemaps(magicallyTypedParam, 0, 255, value, -1, 1);
-                            receiveValues.DrivingRemaps(value, -1, 1, magicallyTypedParam, 0, 255);
-                            break;
-                        case VRCExpressionParameters.ValueType.Bool:
-                            // TODO: Bool packing
-                            sendValues.DrivingCopies(magicallyTypedParam, value);
-                            receiveValues.DrivingCopies(value, magicallyTypedParam);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
+                        sendValues.Drives(fx.BoolParameter(MultiplexerAddressForBit(i)), ExtractBitFromPacketNumber(packetNumber, i));
                     }
+                    
+                    var receiveValues = packetReceiver.NewState("Receive Values");
+                    receiveValues.Drives(focus, packetNumber); // Receiver focuses on current (for informative purposes only, this isn't used to drive internal state)
+                    receiveValues.Drives(progressBar, (index + 1f) / packets.Length);
+                    
+                    var packetParameter = packet.parameters[0];
+                    {
+                        var magicallyTypedParam = silently.IntParameter(packetParameter.name);
+                        var value = fx.IntParameter(MultiplexerValue(0));
+                        switch (packetParameter.expressionParameterDeclaredType)
+                        {
+                            case VRCExpressionParameters.ValueType.Float:
+                                // Float has 1 less possible value than Int to account for the representability of the value 0,
+                                // so 254 is the max bound, not 255.
+                                sendValues.DrivingRemaps(magicallyTypedParam, -1, 1, value, 0, 254);
+                                receiveValues.DrivingRemaps(value, 0, 254, magicallyTypedParam, -1, 1);
+                                break;
+                            case VRCExpressionParameters.ValueType.Int:
+                                sendValues.DrivingCopies(magicallyTypedParam, value);
+                                receiveValues.DrivingCopies(value, magicallyTypedParam);
+                                // sendValues.DrivingRemaps(magicallyTypedParam, 0, 255, value, -1, 1);
+                                // receiveValues.DrivingRemaps(value, -1, 1, magicallyTypedParam, 0, 255);
+                                break;
+                            case VRCExpressionParameters.ValueType.Bool:
+                                // TODO: Bool packing
+                                sendValues.DrivingCopies(magicallyTypedParam, value);
+                                receiveValues.DrivingCopies(value, magicallyTypedParam);
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }
+                    sendValues.Exits().Automatically();
+                    receiveValues.Exits().Automatically();
+                }
+                else
+                {
+                    RecurseParameterSender(fx, packetSender, packet, 0, Array.Empty<bool>(), silently);
                 }
 
                 sender.TransitionsTo(packetSender)
@@ -348,11 +375,35 @@ namespace Prefabulous.VRC.Editor
                 receiver.TransitionsTo(packetReceiver)
                     .When(TheAddressIs(fx, packetNumber, numberOfBitsRequiredToEncodeAddress));
 
-                sendValues.Exits().Automatically();
-                receiveValues.Exits().Automatically();
-
                 packetSender.TransitionsTo(sender);
                 packetReceiver.TransitionsTo(receiver);
+            }
+        }
+
+        private static void RecurseParameterSender(AacFlLayer fx, AacFlStateMachine ssm, PacketUnit packet, int i, bool[] bools, AacFlNoAnimator noAnimator)
+        {
+            if (i < packet.parameters.Length)
+            {
+                var param = packet.parameters[i];
+                var fxParam = fx.BoolParameter(param.name);
+                var whenFalse = ssm.NewSubStateMachine($"Index{i}");
+                var whenTrue = ssm.NewSubStateMachine($"Index{i}");
+                ssm.EntryTransitionsTo(whenFalse).When(fxParam.IsFalse());
+                ssm.EntryTransitionsTo(whenTrue).When(fxParam.IsTrue());
+                RecurseParameterSender(fx, whenFalse, packet, i + 1, bools.Append(false).ToArray(), noAnimator);
+                RecurseParameterSender(fx, whenTrue, packet, i + 1, bools.Append(true).ToArray(), noAnimator);
+            }
+            else
+            {
+                var apply = ssm.NewState("Apply");
+                for (var index = 0; index < packet.parameters.Length; index++)
+                {
+                    var packetParameter = packet.parameters[index];
+                    var packetValue = bools[index];
+                    apply.Drives(noAnimator.BoolParameter(packetParameter.name), packetValue);
+                }
+
+                apply.Exits().Automatically();
             }
         }
 
@@ -375,22 +426,22 @@ namespace Prefabulous.VRC.Editor
 
         private string MultiplexerAddressForBit(int i)
         {
-            return $"Mux/Address/b{i}";
+            return $"Mux/Sync/Addr/b{i}";
         }
 
-        private static string MultiplexerValue0()
+        private static string MultiplexerValue(int v)
         {
-            return "Mux/Value";
+            return $"Mux/Sync/Value/{v}";
         }
 
         private static string MultiplexerFocus()
         {
-            return "Mux/Focus";
+            return "Mux/Local/Focus";
         }
 
-        private static string MultiplexerVisualize()
+        private static string MultiplexerProgress()
         {
-            return "Mux/Visualize";
+            return "Mux/Local/Progress";
         }
     }
 
@@ -409,7 +460,14 @@ namespace Prefabulous.VRC.Editor
 
     internal struct PacketUnit
     {
+        public PacketKind kind;
         public ParamUnit[] parameters;
+    }
+
+    internal enum PacketKind
+    {
+        Single,
+        Bools
     }
 
     internal struct ParamUnit
