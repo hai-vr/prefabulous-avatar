@@ -4,15 +4,15 @@ using VRC.SDKBase;
 
 namespace Prefabulous.Hai.Runtime
 {
-    [AddComponentMenu("Prefabulous Avatar/PA-H Expression Multiplexer")]
-    public class PrefabulousHaiExpressionMultiplexer : MonoBehaviour, IEditorOnly
+    [AddComponentMenu("Prefabulous Avatar/PA-H Multiplexer")]
+    public class PrefabulousHaiMultiplexer : MonoBehaviour, IEditorOnly
     {
-        public PrefabulousHaiExpressionMultiplexerParameter[] parameters;
-        public bool useStrategyEvenWhenUnderLimit;
+        public PrefabulousHaiMultiplexerParameter[] parameters;
+        public bool useEvenWhenUnderLimit;
     }
 
     [Serializable]
-    public struct PrefabulousHaiExpressionMultiplexerParameter
+    public struct PrefabulousHaiMultiplexerParameter
     {
         public string name;
         public MultiplexerStrategy strategy;

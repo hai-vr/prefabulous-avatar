@@ -13,10 +13,10 @@ using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
 using Object = UnityEngine.Object;
 
-[assembly: ExportsPlugin(typeof(PrefabulousHaiExpressionMultiplexerPlugin))]
+[assembly: ExportsPlugin(typeof(PrefabulousHaiMultiplexerPlugin))]
 namespace Prefabulous.VRC.Editor
 {
-    public class PrefabulousHaiExpressionMultiplexerPlugin : Plugin<PrefabulousHaiExpressionMultiplexerPlugin>
+    public class PrefabulousHaiMultiplexerPlugin : Plugin<PrefabulousHaiMultiplexerPlugin>
     {
         // VRC's update delay is supposedly 0.1 of a second (10 updates per second).
         // However, if the delay is set to exactly 0.1, there is a risk that the parameter value serialization will be performed in such a way that one of the packets will be skipped.
@@ -28,10 +28,10 @@ namespace Prefabulous.VRC.Editor
             InPhase(BuildPhase.Optimizing)
                 .Run("Expression Multiplexer", context =>
                 {
-                    var prefabulousComps = context.AvatarRootTransform.GetComponentsInChildren<PrefabulousHaiExpressionMultiplexer>(true);
+                    var prefabulousComps = context.AvatarRootTransform.GetComponentsInChildren<PrefabulousHaiMultiplexer>(true);
                     if (prefabulousComps.Length == 0) return;
 
-                    var forceStrategy = prefabulousComps.Any(multiplexer => multiplexer.useStrategyEvenWhenUnderLimit);
+                    var forceStrategy = prefabulousComps.Any(multiplexer => multiplexer.useEvenWhenUnderLimit);
 
                     var expressionParameters = Object.Instantiate(context.AvatarDescriptor.expressionParameters);
                     context.AvatarDescriptor.expressionParameters = expressionParameters;
@@ -42,17 +42,17 @@ namespace Prefabulous.VRC.Editor
                         var msg = $"Total parameter cost ({originalCost}) is lower than maximum ({MaxParamCost()}.";
                         if (forceStrategy)
                         {
-                            Debug.Log($"(ExpressionMultiplexer) {msg}. No optimization is needed, however, at least one component has useStrategyEvenWhenUnderLimit, so we will process it regardless.");
+                            Debug.Log($"(Multiplexer) {msg}. No optimization is needed, however, at least one component has useStrategyEvenWhenUnderLimit, so we will process it regardless.");
                         }
                         else
                         {
-                            Debug.Log($"(ExpressionMultiplexer) {msg}. No optimization needed, skipping.");
+                            Debug.Log($"(Multiplexer) {msg}. No optimization needed, skipping.");
                             return; // Don't process any further
                         }
                     }
                     else
                     {
-                        Debug.Log($"(ExpressionMultiplexer) The current total cost is {originalCost}.");
+                        Debug.Log($"(Multiplexer) The current total cost is {originalCost}.");
                     }
 
                     var existingParameters = new HashSet<string>(expressionParameters.parameters
@@ -86,15 +86,15 @@ namespace Prefabulous.VRC.Editor
                         }
                     }
                     
-                    Debug.Log($"(ExpressionMultiplexer) We have a total of {lowUpdateRateParams.Count} LowUpdateRate parameters to send.");
-                    Debug.Log($"(ExpressionMultiplexer) The expression parameter currently has {expressionParameters.parameters.Length} parameters.");
+                    Debug.Log($"(Multiplexer) We have a total of {lowUpdateRateParams.Count} LowUpdateRate parameters to send.");
+                    Debug.Log($"(Multiplexer) The expression parameter currently has {expressionParameters.parameters.Length} parameters.");
 
                     var potentialCost = expressionParameters.CalcTotalCost();
                     var savingsWithoutAccountingForMultiplexer = originalCost - potentialCost;
-                    Debug.Log($"(ExpressionMultiplexer) Without accounting for the multiplexer cost, we're going from {originalCost} bits down to {potentialCost} bits, giving us savings of {savingsWithoutAccountingForMultiplexer} bits.");
+                    Debug.Log($"(Multiplexer) Without accounting for the multiplexer cost, we're going from {originalCost} bits down to {potentialCost} bits, giving us savings of {savingsWithoutAccountingForMultiplexer} bits.");
                     
                     var leeway = MaxParamCost() - potentialCost;
-                    Debug.Log($"(ExpressionMultiplexer) The maximum is {MaxParamCost()} bits, so {MaxParamCost()} - {potentialCost} = {leeway} bits of leeway to work with.");
+                    Debug.Log($"(Multiplexer) The maximum is {MaxParamCost()} bits, so {MaxParamCost()} - {potentialCost} = {leeway} bits of leeway to work with.");
 
                     // TODO: Turn these low update rate params into packets
                     var fxAnimator = (AnimatorController)context.AvatarDescriptor.baseAnimationLayers
@@ -149,7 +149,7 @@ namespace Prefabulous.VRC.Editor
         }
 
         private Packettization TryPackettize(
-            Dictionary<string, PrefabulousHaiExpressionMultiplexerParameter> lowUpdateRateParams,
+            Dictionary<string, PrefabulousHaiMultiplexerParameter> lowUpdateRateParams,
             VRCExpressionParameters.Parameter[] expressionParameters,
             AnimatorControllerParameter[] animatorParameters,
             int leeway
