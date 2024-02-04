@@ -99,7 +99,6 @@ namespace Prefabulous.VRC.Editor
                     var leeway = MaxParamCost() - potentialCost;
                     Debug.Log($"(Multiplexer) The maximum is {MaxParamCost()} bits, so {MaxParamCost()} - {potentialCost} = {leeway} bits of leeway to work with.");
 
-                    // TODO: Turn these low update rate params into packets
                     var fxAnimator = (AnimatorController)context.AvatarDescriptor.baseAnimationLayers
                         .First(layer => layer.type == VRCAvatarDescriptor.AnimLayerType.FX).animatorController;
 
@@ -157,6 +156,7 @@ namespace Prefabulous.VRC.Editor
             int leeway
         )
         {
+            // Note for future implementations:
             // We're free to consume all remaining bits available. Therefore, if we can make sequential sync overall faster by increasing the packet size, we should try.
             // In addition, increasing the packet size could reduce the number of addresses needed, and thus, the number of bits needed for the address.
             
@@ -204,17 +204,8 @@ namespace Prefabulous.VRC.Editor
                 });
             }
 
-            // FIXME: Naive packettization
-            // var packetUnits = paramUnits
-            //     .Select(paramUnit => new PacketUnit
-            //     {
-            //         parameters = new[] { paramUnit }
-            //     })
-            //     .ToArray();
-
             return new Packettization
             {
-                // packets = packetUnits
                 packets = packets.ToArray()
             };
         }
@@ -252,7 +243,8 @@ namespace Prefabulous.VRC.Editor
                 DefaultsProvider = new AacDefaultsProvider(true)
             });
 
-            // We are at the optimization phase, so we can't use the usual non-destructive methods.
+            // We are at the optimization phase, so we can't create a Modular Avatar Merge Animator.
+            // Editing the controller directly is necessary here.
             // FIXME: Is there a risk that this controller is an original?
 
             var fx = aac.CreateMainArbitraryControllerLayer(ctrl);
