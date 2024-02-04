@@ -384,6 +384,7 @@ namespace Prefabulous.VRC.Editor
                     switch (method)
                     {
                         case CreationMethod.SingleDepthRecursiveSSM:
+                            // FIXME: This is TOO SLOW to generate non-destructively
                             RecurseParameterSender(fx, packetSender, packet, 0, 0x0, sv => SendStateConfFn(sv, packetNumber, progressBarAmount, sendFocusNext));
                             RecurseParameterReceiver(fx, packetReceiver, packet, 0, 0x0, sv => ReceiveStateConfFn(sv, packetNumber, progressBarAmount), 0);
                             break;
