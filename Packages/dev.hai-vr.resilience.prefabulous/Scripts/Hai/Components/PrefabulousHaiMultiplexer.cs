@@ -4,7 +4,7 @@ using VRC.SDKBase;
 
 namespace Prefabulous.Hai.Runtime
 {
-    [AddComponentMenu("Prefabulous Avatar/PA-H Multiplexer")]
+    [AddComponentMenu("Prefabulous Avatar/PA-H Multiplexer (Beta)")]
     public class PrefabulousHaiMultiplexer : MonoBehaviour, IEditorOnly
     {
         public PrefabulousHaiMultiplexerParameter[] parameters;
