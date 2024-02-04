@@ -21,7 +21,10 @@ namespace Prefabulous.VRC.Editor
         // VRC's update delay is supposedly 0.1 of a second (10 updates per second).
         // However, if the delay is set to exactly 0.1, there is a risk that the parameter value serialization will be performed in such a way that one of the packets will be skipped.
         // I'd rather have a duplicate than a skip, so I'll increase the delay here. 
-        private const float UpdateDelaySeconds = 0.12f;
+        private const float DefaultUpdateDelaySeconds = 0.12f;
+        
+        private const string SendValues = "Send Values";
+        private const string ReceiveValues = "Receive Values";
 
         protected override void Configure()
         {
@@ -107,7 +110,7 @@ namespace Prefabulous.VRC.Editor
                     {
                         name = MultiplexerValue(0),
                         networkSynced = true,
-                        valueType = VRCExpressionParameters.ValueType.Float,
+                        valueType = VRCExpressionParameters.ValueType.Int,
                         saved = false,
                         defaultValue = 0f
                     });
@@ -140,7 +143,6 @@ namespace Prefabulous.VRC.Editor
                     
                     expressionParameters.parameters = newParams.ToArray();
                     
-                    // TODO: Group up lowUpdateRateParams by type to send in bulks
                     // TODO: Handle having more than 8 bits of bandwidth for the value part
                     // TODO: Handle having less than 8 bits of bandwidth for the value part
                     // TODO: Handle having a non-multiple of 8 bits of bandwidth for the value part
@@ -261,7 +263,7 @@ namespace Prefabulous.VRC.Editor
             var init = fx.NewState("Init")
                 .Drives(focus, 1);
 
-            var tempoAnimation = aac.DummyClipLasting(UpdateDelaySeconds, AacFlUnit.Seconds);
+            var tempoAnimation = aac.DummyClipLasting(DefaultUpdateDelaySeconds, AacFlUnit.Seconds);
 
             var sender = fx.NewState("Sender")
                 .Shift(init, -2, 1)
@@ -317,22 +319,35 @@ namespace Prefabulous.VRC.Editor
                     }
                 }
 
-                // Send and receive value
-                if (packet.kind == PacketKind.Single)
+                var progressBarAmount = (index + 1f) / packets.Length;
+                var sendFocusNext = index == packets.Length - 1 ? 1 : packetNumber + 1;
+
+                void SendStateConfFn(AacFlState sendValues, int packetNumber, float progressBarAmount, int sendFocusNext)
                 {
-                    var sendValues = packetSender.NewState("Send Values");
-                    sendValues.Drives(focus, index == packets.Length - 1 ? 1 : packetNumber + 1); // Sender focuses on next
-                    sendValues.Drives(progressBar, (index + 1f) / packets.Length);
+                    sendValues.Drives(focus, sendFocusNext); // Sender focuses on next
+                    sendValues.Drives(progressBar, progressBarAmount);
                     sendValues.DrivingLocally(); // Only the sender should drive locally. This is technically not necessary
                     for (var i = 0; i < numberOfBitsRequiredToEncodeAddress; i++)
                     {
                         sendValues.Drives(fx.BoolParameter(MultiplexerAddressForBit(i)), ExtractBitFromPacketNumber(packetNumber, i));
                     }
-                    
-                    var receiveValues = packetReceiver.NewState("Receive Values");
+                }
+
+                void ReceiveStateConfFn(AacFlState receiveValues, int packetNumber, float progressBarAmount)
+                {
                     receiveValues.Drives(focus, packetNumber); // Receiver focuses on current (for informative purposes only, this isn't used to drive internal state)
-                    receiveValues.Drives(progressBar, (index + 1f) / packets.Length);
-                    
+                    receiveValues.Drives(progressBar, progressBarAmount);
+                }
+                
+                // Send and receive value
+                if (packet.kind == PacketKind.Single)
+                {
+                    var sendValues = packetSender.NewState(SendValues);
+                    SendStateConfFn(sendValues, packetNumber, progressBarAmount, sendFocusNext);
+
+                    var receiveValues = packetReceiver.NewState(ReceiveValues);
+                    ReceiveStateConfFn(receiveValues, packetNumber, progressBarAmount);
+
                     var packetParameter = packet.parameters[0];
                     {
                         var magicallyTypedParam = silently.IntParameter(packetParameter.name);
@@ -352,7 +367,7 @@ namespace Prefabulous.VRC.Editor
                                 // receiveValues.DrivingRemaps(value, -1, 1, magicallyTypedParam, 0, 255);
                                 break;
                             case VRCExpressionParameters.ValueType.Bool:
-                                // TODO: Bool packing
+                                // NOTE: This branch should generally not be executed, as the PacketKind for bools is meant to be PacketKind.Bools
                                 sendValues.DrivingCopies(magicallyTypedParam, value);
                                 receiveValues.DrivingCopies(value, magicallyTypedParam);
                                 break;
@@ -365,7 +380,20 @@ namespace Prefabulous.VRC.Editor
                 }
                 else
                 {
-                    RecurseParameterSender(fx, packetSender, packet, 0, Array.Empty<bool>(), silently);
+                    CreationMethod method = CreationMethod.OneSSMWith256States;
+                    switch (method)
+                    {
+                        case CreationMethod.SingleDepthRecursiveSSM:
+                            RecurseParameterSender(fx, packetSender, packet, 0, 0x0, sv => SendStateConfFn(sv, packetNumber, progressBarAmount, sendFocusNext));
+                            RecurseParameterReceiver(fx, packetReceiver, packet, 0, 0x0, sv => ReceiveStateConfFn(sv, packetNumber, progressBarAmount), 0);
+                            break;
+                        case CreationMethod.OneSSMWith256States:
+                            SingleSSMParameterSender(fx, packetSender, packet, sv => SendStateConfFn(sv, packetNumber, progressBarAmount, sendFocusNext));
+                            SingleSSMParameterReceiver(fx, packetReceiver, packet, sv => ReceiveStateConfFn(sv, packetNumber, progressBarAmount));
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
 
                 sender.TransitionsTo(packetSender)
@@ -380,28 +408,111 @@ namespace Prefabulous.VRC.Editor
             }
         }
 
-        private static void RecurseParameterSender(AacFlLayer fx, AacFlStateMachine ssm, PacketUnit packet, int i, bool[] bools, AacFlNoAnimator noAnimator)
+        internal enum CreationMethod
+        {
+            SingleDepthRecursiveSSM,
+            OneSSMWith256States
+        }
+
+        private static void SingleSSMParameterSender(AacFlLayer fx, AacFlStateMachine ssm, PacketUnit packet, Action<AacFlState> sendStateConfFn)
+        {
+            var value = fx.IntParameter(MultiplexerValue(0));
+            
+            var totalNumberOfStates = (int)Math.Pow(2, packet.parameters.Length);
+            for (var encoded = 0; encoded < totalNumberOfStates; encoded++)
+            {
+                var apply = ssm.NewState($"Apply{encoded}");
+                apply.Drives(value, encoded);
+                
+                sendStateConfFn.Invoke(apply);
+                
+                apply.Exits().Automatically();
+
+                var conditions = ssm.EntryTransitionsTo(apply).WhenConditions();
+                for (var index = 0; index < packet.parameters.Length; index++)
+                {
+                    var param = packet.parameters[index];
+                    conditions.And(fx.BoolParameter(param.name).IsEqualTo(((encoded >> index) & 1) > 0));
+                }
+            }
+        }
+
+        private static void SingleSSMParameterReceiver(AacFlLayer fx, AacFlStateMachine ssm, PacketUnit packet, Action<AacFlState> sendStateConfFn)
+        {
+            var value = fx.IntParameter(MultiplexerValue(0));
+            
+            var totalNumberOfStates = (int)Math.Pow(2, packet.parameters.Length);
+            for (var encoded = 0; encoded < totalNumberOfStates; encoded++)
+            {
+                var apply = ssm.NewState($"Apply{encoded}");
+                for (var index = 0; index < packet.parameters.Length; index++)
+                {
+                    var param = packet.parameters[index];
+                    apply.Drives(fx.BoolParameter(param.name), ((encoded >> index) & 1) > 0);
+                }
+                
+                sendStateConfFn.Invoke(apply);
+                
+                apply.Exits().Automatically();
+                
+                ssm.EntryTransitionsTo(apply).When(value.IsEqualTo(encoded));
+            }
+        }
+
+        private static void RecurseParameterSender(AacFlLayer fx, AacFlStateMachine ssm, PacketUnit packet, int i, int bools, Action<AacFlState> sendStateConfFn)
         {
             if (i < packet.parameters.Length)
             {
                 var param = packet.parameters[i];
                 var fxParam = fx.BoolParameter(param.name);
-                var whenFalse = ssm.NewSubStateMachine($"Index{i}");
-                var whenTrue = ssm.NewSubStateMachine($"Index{i}");
+                var whenFalse = ssm.NewSubStateMachine($"Index{i} False");
+                var whenTrue = ssm.NewSubStateMachine($"Index{i} True");
                 ssm.EntryTransitionsTo(whenFalse).When(fxParam.IsFalse());
                 ssm.EntryTransitionsTo(whenTrue).When(fxParam.IsTrue());
-                RecurseParameterSender(fx, whenFalse, packet, i + 1, bools.Append(false).ToArray(), noAnimator);
-                RecurseParameterSender(fx, whenTrue, packet, i + 1, bools.Append(true).ToArray(), noAnimator);
+                RecurseParameterSender(fx, whenFalse, packet, i + 1, bools, sendStateConfFn);
+                RecurseParameterSender(fx, whenTrue, packet, i + 1, bools | (1 << i), sendStateConfFn);
+                whenFalse.Exits();
+                whenTrue.Exits();
             }
             else
             {
-                var apply = ssm.NewState("Apply");
+                var apply = ssm.NewState(SendValues);
+                var encoded = (int)bools;
+                apply.Drives(fx.IntParameter(MultiplexerValue(0)), encoded);
+
+                sendStateConfFn.Invoke(apply);
+
+                apply.Exits().Automatically();
+            }
+        }
+
+        private static void RecurseParameterReceiver(AacFlLayer fx, AacFlStateMachine ssm, PacketUnit packet, int i, int bools, Action<AacFlState> receiveStateConfFn, int previousK)
+        {
+            var fxParam = fx.IntParameter(MultiplexerValue(0));
+            if (i < packet.parameters.Length)
+            {
+                var k = previousK + (int)Math.Pow(2, packet.parameters.Length - 1 - i);
+                
+                var whenFalse = ssm.NewSubStateMachine($"Index{i} False");
+                var whenTrue = ssm.NewSubStateMachine($"Index{i} True");
+                ssm.EntryTransitionsTo(whenFalse).When(fxParam.IsLessThan(k));
+                ssm.EntryTransitionsTo(whenTrue).When(fxParam.IsGreaterThan(k - 1));
+                RecurseParameterReceiver(fx, whenFalse, packet, i + 1, bools << 1, receiveStateConfFn, previousK);
+                RecurseParameterReceiver(fx, whenTrue, packet, i + 1, (bools << 1) | 1, receiveStateConfFn, k);
+                whenFalse.Exits();
+                whenTrue.Exits();
+            }
+            else
+            {
+                var apply = ssm.NewState(ReceiveValues);
                 for (var index = 0; index < packet.parameters.Length; index++)
                 {
                     var packetParameter = packet.parameters[index];
-                    var packetValue = bools[index];
-                    apply.Drives(noAnimator.BoolParameter(packetParameter.name), packetValue);
+                    var decodedValue = ((bools >> index) & 1) > 0;
+                    apply.Drives(fx.BoolParameter(packetParameter.name), decodedValue);
                 }
+
+                receiveStateConfFn.Invoke(apply);
 
                 apply.Exits().Automatically();
             }
