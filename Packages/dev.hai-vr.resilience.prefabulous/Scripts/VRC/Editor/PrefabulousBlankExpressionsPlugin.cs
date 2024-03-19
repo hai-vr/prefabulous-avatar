@@ -19,6 +19,8 @@ namespace Prefabulous.VRC.Editor
 
                     ctx.AvatarDescriptor.expressionsMenu = new VRCExpressionsMenu();
                     ctx.AvatarDescriptor.expressionParameters = new VRCExpressionParameters();
+                    
+                    PrefabulousUtil.DestroyAllAfterBake<PrefabulousBlankExpressions>(ctx);
                 });
         }
     }

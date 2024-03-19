@@ -55,6 +55,8 @@ namespace Prefabulous.VRC.Editor
 
             var blendshapeNames = PrefabulousUtil.GetAllBlendshapeNames(smr);
             TryGenerateEyeClosedInverseSmile(smr, blendshapeNames, config);
+            
+            PrefabulousUtil.DestroyAllAfterBake<PrefabulousHaiGenerateBlendshapesFTE>(context);
         }
 
         private void TryGenerateEyeClosedInverseSmile(SkinnedMeshRenderer smr, string[] blendshapeNames, PrefabulousHaiGenerateBlendshapesFTE config)

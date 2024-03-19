@@ -52,6 +52,8 @@ namespace Prefabulous.VRC.Editor
                     DeletePolygonsOf(smr, thatSmrBlendShapes, applicableBlendShapes, keepPartialBlendshapes);
                 }
             }
+            
+            PrefabulousUtil.DestroyAllAfterBake<PrefabulousHaiDeletePolygons>(context);
         }
 
         private void DeletePolygonsOf(SkinnedMeshRenderer smr, List<string> thatSmrBlendShapes,

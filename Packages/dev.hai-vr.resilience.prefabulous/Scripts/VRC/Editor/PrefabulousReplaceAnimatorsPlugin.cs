@@ -37,6 +37,13 @@ namespace Prefabulous.VRC.Editor
                 arg => new AnimatorController(),
                 VRCAvatarDescriptor.AnimLayerType.FX
             ));
+            seq.Run("Remove Replace Animators component group", context =>
+            {
+                PrefabulousUtil.DestroyAllAfterBake<PrefabulousReplaceLocomotionAnimator>(context);
+                PrefabulousUtil.DestroyAllAfterBake<PrefabulousReplaceActionAnimator>(context);
+                PrefabulousUtil.DestroyAllAfterBake<PrefabulousBlankGestureAnimator>(context);
+                PrefabulousUtil.DestroyAllAfterBake<PrefabulousBlankFXAnimator>(context);
+            });
         }
 
         private static void ReplaceAnimator<T>(BuildContext context, Func<T, RuntimeAnimatorController> getControllerFn, VRCAvatarDescriptor.AnimLayerType type)

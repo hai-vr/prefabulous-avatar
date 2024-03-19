@@ -24,6 +24,8 @@ namespace Prefabulous.VRC.Editor
                     {
                         smr.localBounds = my.bounds;
                     }
+                    
+                    PrefabulousUtil.DestroyAllAfterBake<PrefabulousEditAllMeshBounds>(context);
                 });
         }
     }

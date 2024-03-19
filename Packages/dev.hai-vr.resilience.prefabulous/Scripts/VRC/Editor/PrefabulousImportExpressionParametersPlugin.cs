@@ -7,16 +7,16 @@ using Prefabulous.VRC.Runtime;
 [assembly: ExportsPlugin(typeof(PrefabulousImportExpressionParametersPlugin))]
 namespace Prefabulous.VRC.Editor
 {
-    public class PrefabulousImportExpressionParametersPlugin : AacPlugin<PrefabulousImportExpressionParameters>
+    public class PrefabulousImportExpressionParametersPlugin : PrefabulousAsCodePlugin<PrefabulousImportExpressionParameters>
     {
-        protected override AacPluginOutput Execute()
+        protected override PrefabulousAsCodePluginOutput Execute()
         {
-            if (my.parameters == null) return AacPluginOutput.Regular();
+            if (my.parameters == null) return PrefabulousAsCodePluginOutput.Regular();
             
             var ma = MaAc.Create(my.gameObject);
             ma.ImportParameters(my.parameters);
             
-            return AacPluginOutput.Regular();
+            return PrefabulousAsCodePluginOutput.Regular();
         }
     }
 }

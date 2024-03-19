@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using nadena.dev.modular_avatar.core;
+using nadena.dev.ndmf;
+using Prefabulous.Hai.Runtime;
 using Prefabulous.VRC.Runtime;
 using UnityEditor;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
+using Object = UnityEngine.Object;
 
 namespace Prefabulous.VRC.Editor
 {
@@ -278,6 +281,14 @@ namespace Prefabulous.VRC.Editor
             }
 
             return result.ToArray();
+        }
+
+        public static void DestroyAllAfterBake<T>(BuildContext context) where T : Component
+        {
+            foreach (var comp in context.AvatarRootTransform.GetComponentsInChildren<T>(true))
+            {
+                Object.DestroyImmediate(comp);
+            }
         }
     }
 }

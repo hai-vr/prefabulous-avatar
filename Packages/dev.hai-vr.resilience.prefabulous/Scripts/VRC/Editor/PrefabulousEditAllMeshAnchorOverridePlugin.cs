@@ -30,6 +30,8 @@ namespace Prefabulous.VRC.Editor
                     {
                         mr.probeAnchor = my.anchorOverride;
                     }
+                    
+                    PrefabulousUtil.DestroyAllAfterBake<PrefabulousEditAllMeshAnchorOverride>(context);
                 });
         }
     }

@@ -65,6 +65,8 @@ namespace Prefabulous.VRC.Editor
                     }
                 }
             }
+                    
+            PrefabulousUtil.DestroyAllAfterBake<PrefabulousHaiMassBlendshapeSync>(context);
         }
     }
 }

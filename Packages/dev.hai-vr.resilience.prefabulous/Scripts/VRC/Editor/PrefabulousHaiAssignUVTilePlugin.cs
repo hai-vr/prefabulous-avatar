@@ -30,6 +30,8 @@ namespace Prefabulous.VRC.Editor
             // Order matters: Process all components of type "EntireMesh", in case additional "BlendShapes" components will further split that assigned UV tile into more tiles.
             ProcessEntireMeshMode(assignUVTiles.Where(tile => tile.mode == PrefabulousHaiAssignUVTile.AssignMode.EntireMesh).ToArray());
             ProcessBlendshapesMode(context, assignUVTiles.Where(tile => tile.mode == PrefabulousHaiAssignUVTile.AssignMode.BlendShapes).ToArray());
+            
+            PrefabulousUtil.DestroyAllAfterBake<PrefabulousHaiAssignUVTile>(context);
         }
 
         private void ProcessEntireMeshMode(PrefabulousHaiAssignUVTile[] assignUVTiles_onlyEntireMeshMode)

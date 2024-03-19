@@ -52,6 +52,8 @@ namespace Prefabulous.VRC.Editor
                     RecalculateNormalsOf(smr, thatSmrBlendShapes, applicableBlendShapes, eraseCustomSplitNormalsBlendShapes);
                 }
             }
+
+            PrefabulousUtil.DestroyAllAfterBake<PrefabulousHaiRecalculateNormals>(context);
         }
 
         private void RecalculateNormalsOf(SkinnedMeshRenderer smr, List<string> thatSmrBlendShapes, List<string> applicableBlendShapes, List<string> eraseCustomSplitNormalsBlendShapes)

@@ -21,48 +21,52 @@ namespace Prefabulous.VRC.Editor
         protected override void Configure()
         {
             InPhase(BuildPhase.Generating)
-                .Run("Create Lock Locomotion", ctx =>
-                {
-                    var prefabulousComps = ctx.AvatarRootTransform.GetComponentsInChildren<PrefabulousHaiLockLocomotionMenuItem>(true);
-                    if (prefabulousComps.Length == 0) return;
+                .Run("Create Lock Locomotion", Generate);
+        }
 
-                    CreateFxLayer(ctx, prefabulousComps.First());
-                    
-                    foreach (var comp in prefabulousComps)
+        private void Generate(BuildContext ctx)
+        {
+            var prefabulousComps = ctx.AvatarRootTransform.GetComponentsInChildren<PrefabulousHaiLockLocomotionMenuItem>(true);
+            if (prefabulousComps.Length == 0) return;
+
+            CreateFxLayer(ctx, prefabulousComps.First());
+
+            foreach (var comp in prefabulousComps)
+            {
+                // Add missing ModularAvatarMenuItem when applicable
+                if (comp.transform.GetComponent<ModularAvatarMenuItem>() == null)
+                {
+                    comp.gameObject.AddComponent<ModularAvatarMenuItem>();
+                }
+
+                var menu = comp.transform.GetComponent<ModularAvatarMenuItem>();
+                menu.hideFlags = HideFlags.NotEditable;
+                menu.Control.icon = comp.icon;
+                menu.Control.parameter.name = ParameterName;
+                menu.Control.type = VRCExpressionsMenu.Control.ControlType.Toggle;
+
+                var menuGroup = comp.transform.GetComponentInParent<ModularAvatarMenuGroup>();
+                if (menuGroup == null)
+                {
+                    var source = comp.transform;
+                    var holder = new GameObject
                     {
-                        // Add missing ModularAvatarMenuItem when applicable
-                        if (comp.transform.GetComponent<ModularAvatarMenuItem>() == null)
+                        transform =
                         {
-                            comp.gameObject.AddComponent<ModularAvatarMenuItem>();
-                        }
-        
-                        var menu = comp.transform.GetComponent<ModularAvatarMenuItem>();
-                        menu.hideFlags = HideFlags.NotEditable;
-                        menu.Control.icon = comp.icon;
-                        menu.Control.parameter.name = ParameterName;
-                        menu.Control.type = VRCExpressionsMenu.Control.ControlType.Toggle;
-                        
-                        var menuGroup = comp.transform.GetComponentInParent<ModularAvatarMenuGroup>();
-                        if (menuGroup == null)
-                        {
-                            var source = comp.transform;
-                            var holder = new GameObject
-                            {
-                                transform =
-                                {
-                                    localPosition = source.transform.localPosition,
-                                    localRotation = source.transform.localRotation,
-                                    localScale = source.transform.localScale,
-                                    parent = source.parent
-                                },
-                                name = $"[{source.name}]"
-                            };
-                            source.SetParent(holder.transform, true);
-                            holder.AddComponent<ModularAvatarMenuGroup>();
-                            holder.AddComponent<ModularAvatarMenuInstaller>();
-                        }
-                    }
-                });
+                            localPosition = source.transform.localPosition,
+                            localRotation = source.transform.localRotation,
+                            localScale = source.transform.localScale,
+                            parent = source.parent
+                        },
+                        name = $"[{source.name}]"
+                    };
+                    source.SetParent(holder.transform, true);
+                    holder.AddComponent<ModularAvatarMenuGroup>();
+                    holder.AddComponent<ModularAvatarMenuInstaller>();
+                }
+            }
+
+            PrefabulousUtil.DestroyAllAfterBake<PrefabulousHaiLockLocomotionMenuItem>(ctx);
         }
 
         private void CreateFxLayer(BuildContext ctx, PrefabulousHaiLockLocomotionMenuItem first)

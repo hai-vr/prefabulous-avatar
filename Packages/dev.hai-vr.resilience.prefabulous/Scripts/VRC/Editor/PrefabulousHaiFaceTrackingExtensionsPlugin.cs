@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AnimatorAsCode.V1;
 using AnimatorAsCode.V1.ModularAvatar;
-using AnimatorAsCode.V1.NDMFProcessor;
 using nadena.dev.ndmf;
 using Prefabulous.Hai.Runtime;
 using Prefabulous.VRC.Editor;
@@ -13,15 +12,15 @@ using VRC.SDK3.Avatars.Components;
 [assembly: ExportsPlugin(typeof(PrefabulousHaiFaceTrackingExtensionsPlugin))]
 namespace Prefabulous.VRC.Editor
 {
-    public class PrefabulousHaiFaceTrackingExtensionsPlugin : AacPlugin<PrefabulousHaiFaceTrackingExtensions>
+    public class PrefabulousHaiFaceTrackingExtensionsPlugin : PrefabulousAsCodePlugin<PrefabulousHaiFaceTrackingExtensions>
     {
-        protected override AacPluginOutput Execute()
+        protected override PrefabulousAsCodePluginOutput Execute()
         {
             var bodyObj = context.AvatarRootTransform.Find("Body");
-            if (bodyObj == null) return AacPluginOutput.Regular();
+            if (bodyObj == null) return PrefabulousAsCodePluginOutput.Regular();
             
             var bodyMesh = bodyObj.GetComponent<SkinnedMeshRenderer>();
-            if (bodyMesh == null) return AacPluginOutput.Regular();
+            if (bodyMesh == null) return PrefabulousAsCodePluginOutput.Regular();
 
             var fxi = CreateFXInverse(bodyMesh);
 
@@ -37,7 +36,7 @@ namespace Prefabulous.VRC.Editor
             var maAc = MaAc.Create(holder);
             maAc.NewMergeAnimator(fxi, VRCAvatarDescriptor.AnimLayerType.FX);
 
-            return AacPluginOutput.Regular();
+            return PrefabulousAsCodePluginOutput.Regular();
         }
 
         private AacFlController CreateFXInverse(SkinnedMeshRenderer bodyMesh)

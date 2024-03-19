@@ -23,6 +23,8 @@ namespace Prefabulous.VRC.Editor
                     var ratio = my.desiredSizeInMeters / effectiveSourceSizeInMeters;
                     ctx.AvatarRootTransform.localScale *= ratio;
                     ctx.AvatarDescriptor.ViewPosition *= ratio;
+                    
+                    PrefabulousUtil.DestroyAllAfterBake<PrefabulousChangeAvatarScale>(ctx);
                 });
         }
     }
