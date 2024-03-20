@@ -3,6 +3,7 @@ using System.Linq;
 using nadena.dev.ndmf;
 using Prefabulous.VRC.Editor;
 using Prefabulous.VRC.Runtime;
+using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
@@ -29,7 +30,15 @@ namespace Prefabulous.VRC.Editor
             ));
             seq.Run("Blank Gesture Animator", context => ReplaceAnimator<PrefabulousBlankGestureAnimator>(
                 context,
-                arg => new AnimatorController(),
+                arg =>
+                {
+                    var ac = new AnimatorController();
+                    ac.AddLayer("Base Layer");
+                    var layers = ac.layers;
+                    layers[0].avatarMask = AssetDatabase.LoadAssetAtPath<AvatarMask>("Packages/com.vrchat.avatars/Samples/AV3 Demo Assets/Animation/Masks/vrc_HandsOnly.mask");
+                    ac.layers = layers;
+                    return ac;
+                },
                 VRCAvatarDescriptor.AnimLayerType.Gesture
             ));
             seq.Run("Blank FX Animator", context => ReplaceAnimator<PrefabulousBlankFXAnimator>(
