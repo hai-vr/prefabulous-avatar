@@ -21,7 +21,7 @@ namespace Prefabulous.VRC.Editor
         [PublicAPI] protected BuildContext context { get; private set; }
 
         public override string QualifiedName => $"dev.hai-vr.ndmf-processor::{GetType().FullName}";
-        public override string DisplayName => $"NdmfAsCode for {GetType().Name}";
+        public override string DisplayName => $"{typeof(T).Name}";
 
         protected virtual PrefabulousAsCodePluginOutput Execute()
         {
