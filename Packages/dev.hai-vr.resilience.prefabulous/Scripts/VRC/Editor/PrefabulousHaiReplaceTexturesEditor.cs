@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Prefabulous.Hai.Runtime;
 using UnityEditor;
@@ -12,6 +13,8 @@ namespace VRC.Editor
     {
         private Texture[] _foundTextures;
         private Texture2D _iconBackground;
+        private Dictionary<Material, HashSet<Component>> _materialToComponent;
+        private Dictionary<Texture, HashSet<Material>> _textureToMaterial;
 
         private void OnEnable()
         {
@@ -20,17 +23,93 @@ namespace VRC.Editor
             var descriptor = my.transform.GetComponentInParent<VRCAvatarDescriptor>();
             if (descriptor == null) return;
 
-            _foundTextures = ExcludeEditorOnly(descriptor.GetComponentsInChildren<SkinnedMeshRenderer>(true)).SelectMany(renderer => renderer.sharedMaterials)
-                .Concat(ExcludeEditorOnly(descriptor.GetComponentsInChildren<MeshRenderer>(true)).SelectMany(renderer => renderer.sharedMaterials))
-                .Concat(ExcludeEditorOnly(descriptor.GetComponentsInChildren<LineRenderer>(true)).SelectMany(renderer => renderer.sharedMaterials))
-                .Concat(ExcludeEditorOnly(descriptor.GetComponentsInChildren<ParticleSystemRenderer>(true)).SelectMany(renderer => renderer.sharedMaterials))
-                .Concat(ExcludeEditorOnly(descriptor.GetComponentsInChildren<ParticleSystemRenderer>(true)).Select(renderer => renderer.trailMaterial))
-                .Distinct()
-                .Where(material => material != null)
-                .SelectMany(material => material.GetTexturePropertyNameIDs().Select(material.GetTexture))
-                .Where(texture => texture != null)
-                .Distinct()
-                .ToArray();
+            var skinnedMeshes = GetAllComponentsInChildrenExceptEditorOnly<SkinnedMeshRenderer>(descriptor);
+            var meshes = GetAllComponentsInChildrenExceptEditorOnly<MeshRenderer>(descriptor);
+            var trails = GetAllComponentsInChildrenExceptEditorOnly<TrailRenderer>(descriptor);
+            var particleSystems = GetAllComponentsInChildrenExceptEditorOnly<ParticleSystemRenderer>(descriptor);
+
+            var skinnedMeshesMaterials = skinnedMeshes.SelectMany(renderer => renderer.sharedMaterials).Where(material => material != null).ToArray();
+            var meshesMaterials = meshes.SelectMany(renderer => renderer.sharedMaterials).Where(material => material != null).ToArray();
+            var trailsMaterials = trails.SelectMany(renderer => renderer.sharedMaterials).Where(material => material != null).ToArray();
+            var particleSystemMaterials = particleSystems
+                .SelectMany(renderer => renderer.sharedMaterials)
+                .Concat(particleSystems.Select(renderer => renderer.trailMaterial)).Where(material => material != null).ToArray();
+
+            _materialToComponent = new Dictionary<Material, HashSet<Component>>();
+            // TODO: How to turn this into a function?!
+            foreach (var renderer in skinnedMeshes)
+            {
+                foreach (var material in renderer.sharedMaterials)
+                {
+                    AddMTC(material, renderer);
+                }
+            }
+            foreach (var renderer in meshes)
+            {
+                foreach (var material in renderer.sharedMaterials)
+                {
+                    AddMTC(material, renderer);
+                }
+            }
+            foreach (var renderer in trails)
+            {
+                foreach (var material in renderer.sharedMaterials)
+                {
+                    AddMTC(material, renderer);
+                }
+            }
+            foreach (var renderer in particleSystems)
+            {
+                var materials = renderer.sharedMaterials
+                    .Concat(new []{ renderer.trailMaterial })
+                    .Where(material => material != null)
+                    .ToArray();
+                foreach (var material in materials)
+                {
+                    AddMTC(material, renderer);
+                }
+            }
+
+            var allDistinctMaterials = skinnedMeshesMaterials
+                .Concat(meshesMaterials)
+                .Concat(trailsMaterials)
+                .Concat(particleSystemMaterials)
+                .Distinct();
+
+            _textureToMaterial = new Dictionary<Texture, HashSet<Material>>();
+            foreach (var material in allDistinctMaterials)
+            {
+                var textures = material.GetTexturePropertyNameIDs()
+                    .Select(material.GetTexture).Where(texture => texture != null)
+                    .ToArray();
+                foreach (var texture in textures)
+                {
+                    if (!_textureToMaterial.ContainsKey(texture))
+                    {
+                        _textureToMaterial[texture] = new HashSet<Material>();
+                    }
+                    _textureToMaterial[texture].Add(material);
+                }
+            }
+            
+            _foundTextures = _textureToMaterial.Keys.ToArray();
+        }
+
+        private void AddMTC(Material materialNullable, Component renderer)
+        {
+            if (materialNullable == null) return;
+            
+            if (!_materialToComponent.ContainsKey(materialNullable))
+            {
+                _materialToComponent[materialNullable] = new HashSet<Component>();
+            }
+
+            _materialToComponent[materialNullable].Add(renderer);
+        }
+
+        private T[] GetAllComponentsInChildrenExceptEditorOnly<T>(VRCAvatarDescriptor descriptor) where T : Component
+        {
+            return ExcludeEditorOnly(descriptor.GetComponentsInChildren<T>(true));
         }
 
         private T[] ExcludeEditorOnly<T>(T[] comps) where T : Component
@@ -54,6 +133,8 @@ namespace VRC.Editor
                 _iconBackground.Apply();
             }
             var my = (PrefabulousHaiReplaceTextures)target;
+            if (my.replacements == null) my.replacements = Array.Empty<PrefabulousTextureSubstitution>();
+            
             var sources = new HashSet<Texture2D>(my.replacements
                 .Select(substitution => substitution.source)
                 .Where(texture2D => texture2D != null));
@@ -69,6 +150,7 @@ For this reason, it is NOT recommended to execute this component in Play Mode. R
             
             foreach (var foundTexture in _foundTextures)
             {
+                EditorGUILayout.BeginVertical("GroupBox");
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Box(foundTexture, new GUIStyle("box")
                     {
@@ -81,7 +163,7 @@ For this reason, it is NOT recommended to execute this component in Play Mode. R
                 var hasTexture = sources.Contains(foundTexture);
                 
                 EditorGUI.BeginDisabledGroup(true);
-                EditorGUILayout.ObjectField(foundTexture, typeof(Texture));
+                EditorGUILayout.ObjectField(foundTexture, typeof(Texture), false);
                 EditorGUI.EndDisabledGroup();
                 
                 EditorGUILayout.LabelField($"{foundTexture.width} \u00d7 {foundTexture.height}");
@@ -103,7 +185,8 @@ For this reason, it is NOT recommended to execute this component in Play Mode. R
                     var field = replacementsProperty
                         .GetArrayElementAtIndex(index)
                         .FindPropertyRelative(nameof(PrefabulousTextureSubstitution.target));
-                    EditorGUILayout.PropertyField(field, new GUIContent("Replace with"));
+                    EditorGUILayout.LabelField("Replace with:");
+                    EditorGUILayout.PropertyField(field, new GUIContent(""));
                     
                     var replaceWith = (Texture2D)field.objectReferenceValue;
                     if (replaceWith != null)
@@ -113,6 +196,23 @@ For this reason, it is NOT recommended to execute this component in Play Mode. R
                 }
                 EditorGUILayout.EndVertical();
                 EditorGUILayout.EndHorizontal();
+                
+                EditorGUILayout.LabelField("Used in:");
+                EditorGUI.BeginDisabledGroup(true);
+                foreach (var material in _textureToMaterial[foundTexture])
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.ObjectField(material, typeof(Material), false);
+                    EditorGUILayout.BeginVertical();
+                    foreach (var component in _materialToComponent[material])
+                    {
+                        EditorGUILayout.ObjectField(component, component.GetType(), false);
+                    }
+                    EditorGUILayout.EndVertical();
+                    EditorGUILayout.EndHorizontal();
+                }
+                EditorGUI.EndDisabledGroup();
+                EditorGUILayout.EndVertical();
             }
             
             serializedObject.ApplyModifiedProperties();

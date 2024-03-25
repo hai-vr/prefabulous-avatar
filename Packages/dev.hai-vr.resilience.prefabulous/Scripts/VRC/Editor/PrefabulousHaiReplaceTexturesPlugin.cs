@@ -26,7 +26,12 @@ namespace Prefabulous.VRC.Editor
             {
                 comps = comps.Where(textures => textures.executeInPlayMode).ToArray();
             }
-            if (comps.Length == 0) return;
+
+            if (comps.Length == 0)
+            {
+                PrefabulousUtil.DestroyAllAfterBake<PrefabulousHaiReplaceTextures>(ctx);
+                return;
+            }
 
             var substitutions = new Dictionary<Texture, Texture>();
             foreach (var comp in comps)
@@ -83,6 +88,8 @@ namespace Prefabulous.VRC.Editor
                     psr.trailMaterial = psr.trailMaterial != null && materialNeedsChanging.TryGetValue(psr.trailMaterial, out var replacement) ? replacement : psr.trailMaterial;
                 }
             }
+            
+            PrefabulousUtil.DestroyAllAfterBake<PrefabulousHaiReplaceTextures>(ctx);
         }
 
         private static Material[] MakeMaterialReplacements(Material[] materials, Dictionary<Material, Material> materialNeedsChanging)
