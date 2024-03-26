@@ -7,12 +7,13 @@ using VRC.SDK3.Avatars.ScriptableObjects;
 
 namespace Prefabulous.VRC.Editor
 {
-    [CustomEditor(typeof(PrefabulousEditAllMeshAnchorOverride))] [CanEditMultipleObjects] public class PrefabulousEditMeshAnchorOverrideEditor : PrefabulousEditor { }
-    [CustomEditor(typeof(PrefabulousEditAllMeshBounds))] [CanEditMultipleObjects] public class PrefabulousEditMeshBoundsEditor : PrefabulousEditor { }
-    [CustomEditor(typeof(PrefabulousHaiFaceTrackingExtensions))] [CanEditMultipleObjects] public class PrefabulousHaiFaceTrackingExtensionsEditor : PrefabulousEditor { }
     [CustomEditor(typeof(PrefabulousBlankExpressions))] [CanEditMultipleObjects] public class PrefabulousBlankExpressionsEditor : PrefabulousEditor { }
     [CustomEditor(typeof(PrefabulousBlankFXAnimator))] [CanEditMultipleObjects] public class PrefabulousBlankFXAnimatorEditor : PrefabulousEditor { }
     [CustomEditor(typeof(PrefabulousBlankGestureAnimator))] [CanEditMultipleObjects] public class PrefabulousBlankGestureAnimatorEditor : PrefabulousEditor { }
+    [CustomEditor(typeof(PrefabulousEditAllMeshAnchorOverride))] [CanEditMultipleObjects] public class PrefabulousEditMeshAnchorOverrideEditor : PrefabulousEditor { }
+    [CustomEditor(typeof(PrefabulousEditAllMeshBounds))] [CanEditMultipleObjects] public class PrefabulousEditMeshBoundsEditor : PrefabulousEditor { }
+    [CustomEditor(typeof(PrefabulousHaiAccurateEyeTracking))] [CanEditMultipleObjects] public class PrefabulousHaiAccurateEyeTrackingEditor : PrefabulousEditor { }
+    [CustomEditor(typeof(PrefabulousHaiFaceTrackingExtensions))] [CanEditMultipleObjects] public class PrefabulousHaiFaceTrackingExtensionsEditor : PrefabulousEditor { }
     [CustomEditor(typeof(PrefabulousImportExpressionParameters))] [CanEditMultipleObjects] public class PrefabulousImportExpressionParametersEditor : PrefabulousEditor { }
     [CustomEditor(typeof(PrefabulousReplaceActionAnimator))] [CanEditMultipleObjects] public class PrefabulousReplaceActionAnimatorEditor : PrefabulousEditor { }
     [CustomEditor(typeof(PrefabulousReplaceLocomotionAnimator))] [CanEditMultipleObjects] public class PrefabulousReplaceLocomotionAnimatorEditor : PrefabulousEditor { }

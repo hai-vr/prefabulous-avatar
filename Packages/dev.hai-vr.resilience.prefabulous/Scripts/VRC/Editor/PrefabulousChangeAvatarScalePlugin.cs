@@ -10,7 +10,7 @@ namespace Prefabulous.VRC.Editor
     {
         protected override void Configure()
         {
-            InPhase(BuildPhase.Resolving)
+            InPhase(BuildPhase.Optimizing)
                 .Run("Change Avatar Scale", ctx =>
                 {
                     var my = ctx.AvatarRootTransform.GetComponentInChildren<PrefabulousChangeAvatarScale>(true);
