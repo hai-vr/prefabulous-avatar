@@ -4,7 +4,7 @@ using VRC.SDKBase;
 
 namespace Prefabulous.VRC.Runtime
 {
-    [AddComponentMenu("Prefabulous Avatar/PA Import Expression Parameters")]
+    [AddComponentMenu("Prefabulous/PA Import Expression Parameters")]
     public class PrefabulousImportExpressionParameters : MonoBehaviour, IEditorOnly
     {
         public VRCExpressionParameters parameters;

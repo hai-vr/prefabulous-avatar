@@ -1,12 +1,13 @@
 ﻿using nadena.dev.ndmf;
+using Prefabulous.Native.Common.Runtime;
+using Prefabulous.Native.Shared.Editor;
 using Prefabulous.VRC.Editor;
-using Prefabulous.VRC.Runtime;
 using UnityEngine;
 
-[assembly: ExportsPlugin(typeof(PrefabulousChangeAvatarScalePlugin))]
+[assembly: ExportsPlugin(typeof(PrefabulousChangeAvatarScaleForVRChatPlugin))]
 namespace Prefabulous.VRC.Editor
 {
-    public class PrefabulousChangeAvatarScalePlugin : Plugin<PrefabulousChangeAvatarScalePlugin>
+    public class PrefabulousChangeAvatarScaleForVRChatPlugin : Plugin<PrefabulousChangeAvatarScaleForVRChatPlugin>
     {
         protected override void Configure()
         {

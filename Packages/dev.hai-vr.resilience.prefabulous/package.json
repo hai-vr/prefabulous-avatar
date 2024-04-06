@@ -1,9 +1,9 @@
 {
   "name": "dev.hai-vr.resilience.prefabulous",
-  "displayName": "Haï ~ Prefabulous Avatar",
-  "version": "1.10.3",
+  "displayName": "Haï ~ Prefabulous for VRChat",
+  "version": "2.0.0-alpha.1",
   "unity": "2019.4",
-  "description": "Prefabulous Avatar https://docs.hai-vr.dev/docs/products/prefabulous-avatar",
+  "description": "Prefabulous https://docs.hai-vr.dev/docs/products/prefabulous-avatar",
   "vrchatVersion" : "2022.1.1",
   "author" : {
     "name" : "Haï~"
@@ -14,6 +14,7 @@
     "dev.hai-vr.animator-as-code.v1.vrchat": "~1.0.9930",
     "dev.hai-vr.animator-as-code.v1.modular-avatar": "~1.0.9921",
     "nadena.dev.modular-avatar": ">=1.9.9 <1.10.0",
+    "dev.hai-vr.resilience.prefabulous.native": "2.0.0-alpha.1",
     "com.vrchat.avatars": ">=3.1.0 <3.6.0"
   },
   "url" : "https://docs.hai-vr.dev/docs/products/prefabulous-avatar"

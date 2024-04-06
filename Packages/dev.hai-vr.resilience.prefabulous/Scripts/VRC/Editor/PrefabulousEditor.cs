@@ -1,5 +1,5 @@
 ﻿using nadena.dev.modular_avatar.core;
-using Prefabulous.Hai.Runtime;
+using Prefabulous.Native.Shared.Editor;
 using Prefabulous.VRC.Runtime;
 using UnityEditor;
 using UnityEngine;
@@ -7,9 +7,7 @@ using VRC.SDK3.Avatars.ScriptableObjects;
 
 namespace Prefabulous.VRC.Editor
 {
-    [CustomEditor(typeof(PrefabulousEditAllMeshAnchorOverride))] [CanEditMultipleObjects] public class PrefabulousEditMeshAnchorOverrideEditor : PrefabulousEditor { }
-    [CustomEditor(typeof(PrefabulousEditAllMeshBounds))] [CanEditMultipleObjects] public class PrefabulousEditMeshBoundsEditor : PrefabulousEditor { }
-    [CustomEditor(typeof(PrefabulousHaiFaceTrackingExtensions))] [CanEditMultipleObjects] public class PrefabulousHaiFaceTrackingExtensionsEditor : PrefabulousEditor { }
+    [CustomEditor(typeof(PrefabulousFaceTrackingExtensions))] [CanEditMultipleObjects] public class PrefabulousHaiFaceTrackingExtensionsEditor : PrefabulousEditor { }
     [CustomEditor(typeof(PrefabulousBlankExpressions))] [CanEditMultipleObjects] public class PrefabulousBlankExpressionsEditor : PrefabulousEditor { }
     [CustomEditor(typeof(PrefabulousBlankFXAnimator))] [CanEditMultipleObjects] public class PrefabulousBlankFXAnimatorEditor : PrefabulousEditor { }
     [CustomEditor(typeof(PrefabulousBlankGestureAnimator))] [CanEditMultipleObjects] public class PrefabulousBlankGestureAnimatorEditor : PrefabulousEditor { }
@@ -17,7 +15,7 @@ namespace Prefabulous.VRC.Editor
     [CustomEditor(typeof(PrefabulousReplaceActionAnimator))] [CanEditMultipleObjects] public class PrefabulousReplaceActionAnimatorEditor : PrefabulousEditor { }
     [CustomEditor(typeof(PrefabulousReplaceLocomotionAnimator))] [CanEditMultipleObjects] public class PrefabulousReplaceLocomotionAnimatorEditor : PrefabulousEditor { }
 
-    [CustomEditor(typeof(PrefabulousHaiLockLocomotionMenuItem))]
+    [CustomEditor(typeof(PrefabulousLockLocomotionMenuItem))]
     [CanEditMultipleObjects]
     public class PrefabulousHaiLockLocomotionEditor : PrefabulousEditor
     {
@@ -25,7 +23,7 @@ namespace Prefabulous.VRC.Editor
         {
             base.OnInspectorGUI();
 
-            var my = (PrefabulousHaiLockLocomotionMenuItem)target;
+            var my = (PrefabulousLockLocomotionMenuItem)target;
             if (my.transform.GetComponent<ModularAvatarMenuItem>() == null)
             {
                 my.gameObject.AddComponent<ModularAvatarMenuItem>();
@@ -34,39 +32,9 @@ namespace Prefabulous.VRC.Editor
             var menu = my.transform.GetComponent<ModularAvatarMenuItem>();
             menu.hideFlags = HideFlags.NotEditable;
             menu.Control.icon = my.icon;
-            menu.Control.parameter.name = PrefabulousHaiLockLocomotionMenuItemPlugin.ParameterName;
+            menu.Control.parameter.name = PrefabulousLockLocomotionMenuItemPlugin.ParameterName;
             menu.Control.type = VRCExpressionsMenu.Control.ControlType.Toggle;
             menu.MenuSource = SubmenuSource.Children;
-        }
-    }
-    
-    
-    public class PrefabulousEditor : UnityEditor.Editor
-    {
-        public override void OnInspectorGUI()
-        {
-            // using (new UnityEditor.LocalizationGroup(target))
-            // {
-                EditorGUI.BeginChangeCheck();
-                serializedObject.UpdateIfRequiredOrScript();
-                var iterator = serializedObject.GetIterator();
-                var count = 0;
-                for (var enterChildren = true; iterator.NextVisible(enterChildren); enterChildren = false)
-                {
-                    if (iterator.propertyPath != "m_Script")
-                    {
-                        count++;
-                        EditorGUILayout.PropertyField(iterator, true);
-                    }
-                }
-
-                if (count == 0)
-                {
-                    EditorGUILayout.LabelField("(This component has no properties)");
-                }
-                serializedObject.ApplyModifiedProperties();
-                EditorGUI.EndChangeCheck();
-            // }
         }
     }
 }

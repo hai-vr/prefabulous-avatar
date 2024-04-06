@@ -4,17 +4,18 @@ using AnimatorAsCode.V1.ModularAvatar;
 using AnimatorAsCode.V1.VRC;
 using nadena.dev.modular_avatar.core;
 using nadena.dev.ndmf;
-using Prefabulous.Hai.Runtime;
+using Prefabulous.Native.Shared.Editor;
 using Prefabulous.VRC.Editor;
+using Prefabulous.VRC.Runtime;
 using UnityEditor;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 using VRC.SDK3.Avatars.ScriptableObjects;
 
-[assembly: ExportsPlugin(typeof(PrefabulousHaiLockLocomotionMenuItemPlugin))]
+[assembly: ExportsPlugin(typeof(PrefabulousLockLocomotionMenuItemPlugin))]
 namespace Prefabulous.VRC.Editor
 {
-    public class PrefabulousHaiLockLocomotionMenuItemPlugin : Plugin<PrefabulousHaiLockLocomotionMenuItemPlugin>
+    public class PrefabulousLockLocomotionMenuItemPlugin : Plugin<PrefabulousLockLocomotionMenuItemPlugin>
     {
         public const string ParameterName = "Prefabulous/Hai/LockLocomotion";
         
@@ -26,7 +27,7 @@ namespace Prefabulous.VRC.Editor
 
         private void Generate(BuildContext ctx)
         {
-            var prefabulousComps = ctx.AvatarRootTransform.GetComponentsInChildren<PrefabulousHaiLockLocomotionMenuItem>(true);
+            var prefabulousComps = ctx.AvatarRootTransform.GetComponentsInChildren<PrefabulousLockLocomotionMenuItem>(true);
             if (prefabulousComps.Length == 0) return;
 
             CreateFxLayer(ctx, prefabulousComps.First());
@@ -66,10 +67,10 @@ namespace Prefabulous.VRC.Editor
                 }
             }
 
-            PrefabulousUtil.DestroyAllAfterBake<PrefabulousHaiLockLocomotionMenuItem>(ctx);
+            PrefabulousUtil.DestroyAllAfterBake<PrefabulousLockLocomotionMenuItem>(ctx);
         }
 
-        private void CreateFxLayer(BuildContext ctx, PrefabulousHaiLockLocomotionMenuItem first)
+        private void CreateFxLayer(BuildContext ctx, PrefabulousLockLocomotionMenuItem first)
         {
             var aac = AacV1.Create(new AacConfiguration
             {

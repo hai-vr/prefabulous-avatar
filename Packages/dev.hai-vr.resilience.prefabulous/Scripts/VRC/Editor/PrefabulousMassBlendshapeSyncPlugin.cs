@@ -2,8 +2,9 @@
 using System.Linq;
 using nadena.dev.modular_avatar.core;
 using nadena.dev.ndmf;
-using Prefabulous.Hai.Runtime;
+using Prefabulous.Native.Shared.Editor;
 using Prefabulous.VRC.Editor;
+using Prefabulous.VRC.Runtime;
 using UnityEditor;
 
 [assembly: ExportsPlugin(typeof(PrefabulousMassBlendshapeSyncPlugin))]
@@ -21,7 +22,7 @@ namespace Prefabulous.VRC.Editor
 
         private void GenerateBlendshapes(BuildContext context)
         {
-            var configs = context.AvatarRootTransform.GetComponentsInChildren<PrefabulousHaiMassBlendshapeSync>(true);
+            var configs = context.AvatarRootTransform.GetComponentsInChildren<PrefabulousMassBlendshapeSync>(true);
             foreach (var config in configs)
             {
                 if (config.source == null) continue;
@@ -66,7 +67,7 @@ namespace Prefabulous.VRC.Editor
                 }
             }
                     
-            PrefabulousUtil.DestroyAllAfterBake<PrefabulousHaiMassBlendshapeSync>(context);
+            PrefabulousUtil.DestroyAllAfterBake<PrefabulousMassBlendshapeSync>(context);
         }
     }
 }
