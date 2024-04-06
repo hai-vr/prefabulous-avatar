@@ -1,5 +1,5 @@
 ﻿using nadena.dev.ndmf;
-using Prefabulous.Native.Shared.Editor;
+using Prefabulous.Universal.Shared.Editor;
 using Prefabulous.VRC.Editor;
 using Prefabulous.VRC.Runtime;
 using VRC.SDK3.Avatars.ScriptableObjects;

@@ -4,7 +4,7 @@ using System.Linq;
 using AnimatorAsCode.V1;
 using AnimatorAsCode.V1.ModularAvatar;
 using nadena.dev.ndmf;
-using Prefabulous.Native.Shared.Editor;
+using Prefabulous.Universal.Shared.Editor;
 using Prefabulous.VRC.Editor;
 using Prefabulous.VRC.Runtime;
 using UnityEngine;

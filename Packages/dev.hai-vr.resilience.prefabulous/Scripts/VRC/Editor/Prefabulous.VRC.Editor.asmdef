@@ -8,8 +8,8 @@
         "nadena.dev.ndmf",
         "nadena.dev.ndmf.vrchat",
         "nadena.dev.modular-avatar.core",
-        "Prefabulous.Native.Shared.Editor",
-        "Prefabulous.Native.Common.Runtime",
+        "Prefabulous.Universal.Shared.Editor",
+        "Prefabulous.Universal.Common.Runtime",
         "Prefabulous.VRC.Runtime"
     ],
     "includePlatforms": [

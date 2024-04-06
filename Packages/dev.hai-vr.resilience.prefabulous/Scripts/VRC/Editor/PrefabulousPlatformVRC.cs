@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using nadena.dev.modular_avatar.core;
-using Prefabulous.Native.Shared.Editor;
+using Prefabulous.Universal.Shared.Editor;
 using Prefabulous.VRC.Runtime;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
