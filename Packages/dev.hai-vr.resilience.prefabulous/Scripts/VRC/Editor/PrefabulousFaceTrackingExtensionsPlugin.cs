@@ -4,15 +4,16 @@ using System.Linq;
 using AnimatorAsCode.V1;
 using AnimatorAsCode.V1.ModularAvatar;
 using nadena.dev.ndmf;
-using Prefabulous.Hai.Runtime;
+using Prefabulous.Native.Shared.Editor;
 using Prefabulous.VRC.Editor;
+using Prefabulous.VRC.Runtime;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 
-[assembly: ExportsPlugin(typeof(PrefabulousHaiFaceTrackingExtensionsPlugin))]
+[assembly: ExportsPlugin(typeof(PrefabulousFaceTrackingExtensionsPlugin))]
 namespace Prefabulous.VRC.Editor
 {
-    public class PrefabulousHaiFaceTrackingExtensionsPlugin : PrefabulousAsCodePlugin<PrefabulousHaiFaceTrackingExtensions>
+    public class PrefabulousFaceTrackingExtensionsPlugin : PrefabulousAsCodePlugin<PrefabulousFaceTrackingExtensions>
     {
         protected override PrefabulousAsCodePluginOutput Execute()
         {

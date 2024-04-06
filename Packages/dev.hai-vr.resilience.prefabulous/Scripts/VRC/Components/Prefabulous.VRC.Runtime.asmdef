@@ -1,6 +1,8 @@
 {
     "name": "Prefabulous.VRC.Runtime",
-    "references": [],
+    "references": [
+        "nadena.dev.modular-avatar.core"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

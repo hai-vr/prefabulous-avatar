@@ -2,10 +2,10 @@
 using UnityEngine;
 using VRC.SDKBase;
 
-namespace Prefabulous.Hai.Runtime
+namespace Prefabulous.VRC.Runtime
 {
-    [AddComponentMenu("Prefabulous Avatar/PA-H Lock Locomotion Menu Item")]
-    public class PrefabulousHaiLockLocomotionMenuItem : MonoBehaviour, IEditorOnly
+    [AddComponentMenu("Prefabulous/PA Lock Locomotion Menu Item")]
+    public class PrefabulousLockLocomotionMenuItem : MonoBehaviour, IEditorOnly
     {
         public Texture2D icon;
 
