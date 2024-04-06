@@ -1,5 +1,5 @@
 ﻿using nadena.dev.modular_avatar.core;
-using Prefabulous.Native.Shared.Editor;
+using Prefabulous.Universal.Shared.Editor;
 using Prefabulous.VRC.Runtime;
 using UnityEditor;
 using UnityEngine;

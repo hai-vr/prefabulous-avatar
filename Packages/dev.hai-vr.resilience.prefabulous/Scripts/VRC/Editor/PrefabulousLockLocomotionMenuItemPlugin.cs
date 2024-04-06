@@ -4,7 +4,7 @@ using AnimatorAsCode.V1.ModularAvatar;
 using AnimatorAsCode.V1.VRC;
 using nadena.dev.modular_avatar.core;
 using nadena.dev.ndmf;
-using Prefabulous.Native.Shared.Editor;
+using Prefabulous.Universal.Shared.Editor;
 using Prefabulous.VRC.Editor;
 using Prefabulous.VRC.Runtime;
 using UnityEditor;

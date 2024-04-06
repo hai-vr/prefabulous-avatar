@@ -1,7 +1,7 @@
 ﻿using AnimatorAsCode.V1;
 using JetBrains.Annotations;
 using nadena.dev.ndmf;
-using Prefabulous.Native.Shared.Editor;
+using Prefabulous.Universal.Shared.Editor;
 using UnityEditor;
 using UnityEngine;
 

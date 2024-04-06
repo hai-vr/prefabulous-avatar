@@ -1,6 +1,6 @@
 ﻿using nadena.dev.ndmf;
-using Prefabulous.Native.Common.Runtime;
-using Prefabulous.Native.Shared.Editor;
+using Prefabulous.Universal.Common.Runtime;
+using Prefabulous.Universal.Shared.Editor;
 using Prefabulous.VRC.Editor;
 using UnityEngine;
 

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Prefabulous.Native.Common.Runtime;
+using Prefabulous.Universal.Common.Runtime;
 using UnityEditor;
 using VRC.SDK3.Avatars.Components;
 
