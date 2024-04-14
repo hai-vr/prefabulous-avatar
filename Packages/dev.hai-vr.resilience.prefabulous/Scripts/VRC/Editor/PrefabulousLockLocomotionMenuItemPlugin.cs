@@ -17,6 +17,9 @@ namespace Prefabulous.VRC.Editor
 {
     public class PrefabulousLockLocomotionMenuItemPlugin : Plugin<PrefabulousLockLocomotionMenuItemPlugin>
     {
+        public override string QualifiedName => "dev.hai-vr.prefabulous.vrc.LockLocomotionMenuItem";
+        public override string DisplayName => "Prefabulous for VRChat - Lock Locomotion Menu Item";
+        
         public const string ParameterName = "Prefabulous/Hai/LockLocomotion";
         
         protected override void Configure()

@@ -9,6 +9,9 @@ namespace Prefabulous.VRC.Editor
 {
     public class PrefabulousChangeAvatarScaleForVRChatPlugin : Plugin<PrefabulousChangeAvatarScaleForVRChatPlugin>
     {
+        public override string QualifiedName => "dev.hai-vr.prefabulous.vrc.ChangeAvatarScaleForVRChat";
+        public override string DisplayName => "Prefabulous for VRChat - Change Avatar Scale (for VRChat)";
+        
         protected override void Configure()
         {
             InPhase(BuildPhase.Resolving)

@@ -4,16 +4,19 @@ using System.Linq;
 using nadena.dev.modular_avatar.core;
 using Prefabulous.Universal.Shared.Editor;
 using Prefabulous.VRC.Runtime;
+using UnityEditor;
 using UnityEngine;
 using VRC.SDK3.Avatars.Components;
 
 namespace Prefabulous.VRC.Editor
 {
+    [InitializeOnLoad]
     public class InternalOnlyPrefabulousPlatformVrc : PrefabulousUtil.IInternalOnlyPrefabulousPlatform
     {
         static InternalOnlyPrefabulousPlatformVrc()
         {
-            PrefabulousUtil.IInternalOnlyPrefabulousPlatform.Platform = new InternalOnlyPrefabulousPlatformVrc();
+            PrefabulousUtil.InternalOnlyPrefabulousPlatform.Platform = new InternalOnlyPrefabulousPlatformVrc();
+            Debug.Log("(Prefabulous V2) Platform is now: VRChat");
         }
         
         public AnimationClip[] FindAllRelevantAnimationClips(Transform avatarRoot)

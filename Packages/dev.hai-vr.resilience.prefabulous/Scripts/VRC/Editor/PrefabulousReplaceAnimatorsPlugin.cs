@@ -14,6 +14,9 @@ namespace Prefabulous.VRC.Editor
 {
     public class PrefabulousReplaceAnimatorsPlugin : Plugin<PrefabulousReplaceAnimatorsPlugin>
     {
+        public override string QualifiedName => "dev.hai-vr.prefabulous.vrc.ReplaceAnimators";
+        public override string DisplayName => "Prefabulous for VRChat - Replace Animators";
+        
         protected override void Configure()
         {
             var seq = InPhase(BuildPhase.Resolving)

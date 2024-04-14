@@ -12,6 +12,9 @@ namespace Prefabulous.VRC.Editor
 {
     public class PrefabulousMassBlendshapeSyncPlugin : Plugin<PrefabulousMassBlendshapeSyncPlugin>
     {
+        public override string QualifiedName => "dev.hai-vr.prefabulous.vrc.MassBlendshapeSync";
+        public override string DisplayName => "Prefabulous for VRChat - Mass Blendshape Sync";
+        
         protected override void Configure()
         {
             var seq = InPhase(BuildPhase.Transforming)

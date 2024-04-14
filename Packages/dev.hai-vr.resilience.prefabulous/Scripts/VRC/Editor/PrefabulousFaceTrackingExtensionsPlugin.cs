@@ -15,6 +15,9 @@ namespace Prefabulous.VRC.Editor
 {
     public class PrefabulousFaceTrackingExtensionsPlugin : PrefabulousAsCodePlugin<PrefabulousFaceTrackingExtensions>
     {
+        public override string QualifiedName => "dev.hai-vr.prefabulous.vrc.FaceTrackingExtensions";
+        public override string DisplayName => "Prefabulous for VRChat - Face Tracking Extensions";
+        
         protected override PrefabulousAsCodePluginOutput Execute()
         {
             var bodyObj = context.AvatarRootTransform.Find("Body");

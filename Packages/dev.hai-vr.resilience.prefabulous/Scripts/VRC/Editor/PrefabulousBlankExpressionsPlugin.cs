@@ -9,6 +9,9 @@ namespace Prefabulous.VRC.Editor
 {
     public class PrefabulousBlankExpressionsPlugin : Plugin<PrefabulousBlankExpressionsPlugin>
     {
+        public override string QualifiedName => "dev.hai-vr.prefabulous.vrc.BlankExpressions";
+        public override string DisplayName => "Prefabulous for VRChat - Blank Expressions";
+        
         protected override void Configure()
         {
             InPhase(BuildPhase.Resolving)

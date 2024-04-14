@@ -9,6 +9,9 @@ namespace Prefabulous.VRC.Editor
 {
     public class PrefabulousImportExpressionParametersPlugin : PrefabulousAsCodePlugin<PrefabulousImportExpressionParameters>
     {
+        public override string QualifiedName => "dev.hai-vr.prefabulous.vrc.ImportExpressionParameters";
+        public override string DisplayName => "Prefabulous for VRChat - Import Expressions Parameters";
+        
         protected override PrefabulousAsCodePluginOutput Execute()
         {
             if (my.parameters == null) return PrefabulousAsCodePluginOutput.Regular();

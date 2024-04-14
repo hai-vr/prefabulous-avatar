@@ -4,7 +4,7 @@ using VRC.SDKBase;
 
 namespace Prefabulous.VRC.Runtime
 {
-    [AddComponentMenu("Prefabulous/PA Lock Locomotion Menu Item")]
+    [AddComponentMenu("Prefabulous/PA-VRC Lock Locomotion Menu Item")]
     public class PrefabulousLockLocomotionMenuItem : MonoBehaviour, IEditorOnly
     {
         public Texture2D icon;
