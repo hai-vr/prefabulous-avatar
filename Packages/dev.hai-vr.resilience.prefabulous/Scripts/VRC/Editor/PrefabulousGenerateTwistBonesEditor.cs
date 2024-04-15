@@ -57,7 +57,7 @@ namespace Prefabulous.Universal.Shared.Editor
             EditorGUILayout.LabelField(AlphaExperimentalCompatibilityOptionsLabel, EditorStyles.boldLabel);
             if (GUILayout.Button("?", GUILayout.Width(50)))
             {
-                Application.OpenURL("http://localhost:3000/docs/products/prefabulous/universal/generate-twist-bones");
+                Application.OpenURL("https://docs.hai-vr.dev/docs/products/prefabulous/universal/generate-twist-bones#experimental-compatibility-options");
             }
             EditorGUILayout.EndHorizontal();
             
