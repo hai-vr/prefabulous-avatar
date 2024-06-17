@@ -1,4 +1,4 @@
-﻿#if PREFABULOUS_INTERNAL
+﻿using System;
 using AnimatorAsCode.V1;
 using AnimatorAsCode.V1.ModularAvatar;
 using nadena.dev.ndmf;
@@ -23,15 +23,18 @@ namespace Prefabulous.VRC.Editor
             var one = layer.FloatParameter("AccurateEyes/One");
             layer.OverrideValue(one, 1);
 
-            var leftX = layer.FloatParameter("OSCm/Proxy/FT/v2/EyeLeftX");
-            var rightX = layer.FloatParameter("OSCm/Proxy/FT/v2/EyeRightX");
-            var anyY = layer.FloatParameter("OSCm/Proxy/FT/v2/EyeY");
+            Params(out var lx, out var rx, out var ly, out var ry);
+            
+            var leftX = layer.FloatParameter(lx);
+            var rightX = layer.FloatParameter(rx);
+            var leftY = layer.FloatParameter(ly);
+            var rightY = layer.FloatParameter(ry);
 
             var dbt = aac.NewBlendTree().Direct()
                 .WithAnimation(TreeFor(leftX, my.leftEyeYaw, false), one)
-                .WithAnimation(TreeFor(anyY, my.leftEyePitch, true), one)
+                .WithAnimation(TreeFor(leftY, my.leftEyePitch, true), one)
                 .WithAnimation(TreeFor(rightX, my.rightEyeYaw, false), one)
-                .WithAnimation(TreeFor(anyY, my.rightEyePitch, true), one);
+                .WithAnimation(TreeFor(rightY, my.rightEyePitch, true), one);
 
             layer.NewState("DBT").WithWriteDefaultsSetTo(true).WithAnimation(dbt);
 
@@ -50,11 +53,32 @@ namespace Prefabulous.VRC.Editor
             return PrefabulousAsCodePluginOutput.Regular();
         }
 
+        private void Params(out string lx, out string rx, out string ly, out string ry)
+        {
+            switch (my.vendor)
+            {
+                case PrefabulousAccurateEyeTrackingAnimatorVendor.Adjerry91:
+                    lx = "OSCm/Proxy/FT/v2/EyeLeftX";
+                    rx = "OSCm/Proxy/FT/v2/EyeRightX";
+                    ly = "OSCm/Proxy/FT/v2/EyeY";
+                    ry = "OSCm/Proxy/FT/v2/EyeY";
+                    break;
+                case PrefabulousAccurateEyeTrackingAnimatorVendor.Custom:
+                    lx = my.leftXParam;
+                    rx = my.rightXParam;
+                    ly = my.leftYParam;
+                    ry = my.rightYParam;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         private AacFlBlendTree1D TreeFor(AacFlFloatParameter param, Transform control, bool isPitch)
         {
             var tree = aac.NewBlendTree().Simple1D(param);
             
-            // Neither quaternion interpolation nor Euler interpolation produce accurate results.
+            // Neither quaternion interpolation nor Euler interpolation appear to produce accurate results.
             // Instead, chop the normalized cartesian angle into equal parts, and map to an angle.
             for (var i = -90; i <= 90; i = i + 2)
             {
@@ -76,4 +100,3 @@ namespace Prefabulous.VRC.Editor
         }
     }
 }
-#endif
