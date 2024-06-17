@@ -1,7 +1,7 @@
 {
   "name": "dev.hai-vr.resilience.prefabulous",
   "displayName": "Haï ~ Prefabulous for VRChat",
-  "version": "2.0.0",
+  "version": "2.1.0-alpha.1",
   "unity": "2019.4",
   "description": "Prefabulous for VRChat https://docs.hai-vr.dev/docs/products/prefabulous",
   "vrchatVersion" : "2022.1.1",
@@ -16,5 +16,8 @@
     "dev.hai-vr.resilience.prefabulous.universal": ">=2.0.0 <3.0.0-a",
     "com.vrchat.avatars": ">=3.1.0 <3.7.0-a"
   },
-  "url" : "https://docs.hai-vr.dev/docs/products/prefabulous"
+  "url" : "https://docs.hai-vr.dev/docs/products/prefabulous",
+  "documentationUrl": "https://docs.hai-vr.dev/docs/products/prefabulous",
+  "changelogUrl": "https://docs.hai-vr.dev/docs/changelogs/prefabulous-for-vrchat",
+  "license": "MIT"
 }
