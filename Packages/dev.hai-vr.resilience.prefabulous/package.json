@@ -9,12 +9,12 @@
     "name" : "Haï~"
   },
   "vpmDependencies": {
-    "dev.hai-vr.animator-as-code.v1": "~1.0.9940",
-    "dev.hai-vr.animator-as-code.v1.vrchat": "~1.0.9940",
-    "dev.hai-vr.animator-as-code.v1.modular-avatar": "~1.0.9940",
+    "dev.hai-vr.animator-as-code.v1": ">=1.0.9940 <1.2.0-a",
+    "dev.hai-vr.animator-as-code.v1.vrchat": ">=1.0.9940 <1.2.0-a",
+    "dev.hai-vr.animator-as-code.v1.modular-avatar": ">=1.0.9940 <1.2.0-a",
     "nadena.dev.modular-avatar": ">=1.9.9 <2.0.0-a",
     "dev.hai-vr.resilience.prefabulous.universal": ">=2.0.0 <3.0.0-a",
-    "com.vrchat.avatars": ">=3.1.0 <3.7.0-a"
+    "com.vrchat.avatars": ">=3.1.0 <3.8.0-a"
   },
   "url" : "https://docs.hai-vr.dev/docs/products/prefabulous",
   "documentationUrl": "https://docs.hai-vr.dev/docs/products/prefabulous",
