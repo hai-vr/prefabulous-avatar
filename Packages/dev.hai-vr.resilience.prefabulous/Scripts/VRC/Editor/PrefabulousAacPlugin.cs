@@ -49,6 +49,9 @@ namespace Prefabulous.VRC.Editor
                             AssetKey = GUID.Generate().ToString(),
                             AssetContainer = ctx.AssetContainer,
                             ContainerMode = AacConfiguration.Container.OnlyWhenPersistenceRequired,
+#if PREFABULOUS_NDMF_SUPPORTS_ASSETSAVER
+                            AssetContainerProvider = new PrefabulousAsCodeContainerProvider(ctx),
+#endif
                             DefaultsProvider = new AacDefaultsProvider(UseWriteDefaults(script, ctx))
                         });
                         my = script;
@@ -74,4 +77,15 @@ namespace Prefabulous.VRC.Editor
             return new PrefabulousAsCodePluginOutput();
         }
     }
+    
+#if PREFABULOUS_NDMF_SUPPORTS_ASSETSAVER
+    internal class PrefabulousAsCodeContainerProvider : IAacAssetContainerProvider
+    {
+        private readonly BuildContext _ctx;
+        public PrefabulousAsCodeContainerProvider(BuildContext ctx) => _ctx = ctx;
+        public void SaveAsPersistenceRequired(Object objectToAdd) => _ctx.AssetSaver.SaveAsset(objectToAdd);
+        public void SaveAsRegular(Object objectToAdd) { } // Let NDMF crawl our assets when it finishes
+        public void ClearPreviousAssets() { } // ClearPreviousAssets is never used in non-destructive contexts
+    }
+#endif
 }

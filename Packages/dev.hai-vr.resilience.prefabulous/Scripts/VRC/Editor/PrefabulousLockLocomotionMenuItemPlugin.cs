@@ -83,6 +83,9 @@ namespace Prefabulous.VRC.Editor
                 AssetKey = GUID.Generate().ToString(),
                 AssetContainer = ctx.AssetContainer,
                 ContainerMode = AacConfiguration.Container.OnlyWhenPersistenceRequired,
+#if PREFABULOUS_NDMF_SUPPORTS_ASSETSAVER
+                AssetContainerProvider = new PrefabulousAsCodeContainerProvider(ctx),
+#endif
                 DefaultsProvider = new AacDefaultsProvider(true)
             });
 

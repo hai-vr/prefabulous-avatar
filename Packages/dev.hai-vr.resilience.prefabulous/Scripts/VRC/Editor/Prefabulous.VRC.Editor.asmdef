@@ -25,6 +25,12 @@
     ],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "nadena.dev.ndmf",
+            "expression": "1.6.0",
+            "define": "PREFABULOUS_NDMF_SUPPORTS_ASSETSAVER"
+        }
+    ],
     "noEngineReferences": false
 }
