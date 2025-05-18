@@ -7,6 +7,9 @@ using VRC.SDK3.Avatars.ScriptableObjects;
 [assembly: ExportsPlugin(typeof(PrefabulousBlankExpressionsPlugin))]
 namespace Prefabulous.VRC.Editor
 {
+#if PREFABULOUS_NDMF_CROSSAPP_INTEGRATION_SUPPORTED
+    [RunsOnPlatforms(WellKnownPlatforms.VRChatAvatar30)]
+#endif
     public class PrefabulousBlankExpressionsPlugin : Plugin<PrefabulousBlankExpressionsPlugin>
     {
         public override string QualifiedName => "dev.hai-vr.prefabulous.vrc.BlankExpressions";

@@ -12,6 +12,9 @@ using VRC.SDK3.Avatars.Components;
 [assembly: ExportsPlugin(typeof(PrefabulousReplaceAnimatorsPlugin))]
 namespace Prefabulous.VRC.Editor
 {
+#if PREFABULOUS_NDMF_CROSSAPP_INTEGRATION_SUPPORTED
+    [RunsOnPlatforms(WellKnownPlatforms.VRChatAvatar30)]
+#endif
     public class PrefabulousReplaceAnimatorsPlugin : Plugin<PrefabulousReplaceAnimatorsPlugin>
     {
         public override string QualifiedName => "dev.hai-vr.prefabulous.vrc.ReplaceAnimators";

@@ -30,6 +30,11 @@
             "name": "nadena.dev.ndmf",
             "expression": "1.6.0",
             "define": "PREFABULOUS_NDMF_SUPPORTS_ASSETSAVER"
+        },
+        {
+            "name": "nadena.dev.ndmf",
+            "expression": "1.8.0-alpha.0",
+            "define": "PREFABULOUS_NDMF_CROSSAPP_INTEGRATION_SUPPORTED"
         }
     ],
     "noEngineReferences": false

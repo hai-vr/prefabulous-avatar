@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Prefabulous.VRC.Editor
 {
+    // Do not attach the RunsOnPlatforms attribute here
     public class PrefabulousAsCodePlugin<T> : Plugin<PrefabulousAsCodePlugin<T>> where T : MonoBehaviour
     {
         // Can be changed if necessary

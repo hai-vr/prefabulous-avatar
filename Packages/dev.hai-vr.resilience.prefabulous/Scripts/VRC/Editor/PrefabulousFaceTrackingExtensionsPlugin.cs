@@ -13,6 +13,9 @@ using VRC.SDK3.Avatars.Components;
 [assembly: ExportsPlugin(typeof(PrefabulousFaceTrackingExtensionsPlugin))]
 namespace Prefabulous.VRC.Editor
 {
+#if PREFABULOUS_NDMF_CROSSAPP_INTEGRATION_SUPPORTED
+    [RunsOnPlatforms(WellKnownPlatforms.VRChatAvatar30)]
+#endif
     public class PrefabulousFaceTrackingExtensionsPlugin : PrefabulousAsCodePlugin<PrefabulousFaceTrackingExtensions>
     {
         public override string QualifiedName => "dev.hai-vr.prefabulous.vrc.FaceTrackingExtensions";

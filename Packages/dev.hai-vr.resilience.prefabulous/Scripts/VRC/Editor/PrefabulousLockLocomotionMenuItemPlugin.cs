@@ -15,6 +15,9 @@ using VRC.SDK3.Avatars.ScriptableObjects;
 [assembly: ExportsPlugin(typeof(PrefabulousLockLocomotionMenuItemPlugin))]
 namespace Prefabulous.VRC.Editor
 {
+#if PREFABULOUS_NDMF_CROSSAPP_INTEGRATION_SUPPORTED
+    [RunsOnPlatforms(WellKnownPlatforms.VRChatAvatar30)]
+#endif
     public class PrefabulousLockLocomotionMenuItemPlugin : Plugin<PrefabulousLockLocomotionMenuItemPlugin>
     {
         public override string QualifiedName => "dev.hai-vr.prefabulous.vrc.LockLocomotionMenuItem";

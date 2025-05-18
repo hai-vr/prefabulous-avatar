@@ -10,6 +10,9 @@ using UnityEditor;
 [assembly: ExportsPlugin(typeof(PrefabulousMassBlendshapeSyncPlugin))]
 namespace Prefabulous.VRC.Editor
 {
+#if PREFABULOUS_NDMF_CROSSAPP_INTEGRATION_SUPPORTED
+    [RunsOnPlatforms(WellKnownPlatforms.VRChatAvatar30)]
+#endif
     public class PrefabulousMassBlendshapeSyncPlugin : Plugin<PrefabulousMassBlendshapeSyncPlugin>
     {
         public override string QualifiedName => "dev.hai-vr.prefabulous.vrc.MassBlendshapeSync";

@@ -10,6 +10,9 @@ using Prefabulous.VRC.Runtime;
 [assembly: ExportsPlugin(typeof(PrefabulousAccurateEyeTrackingPlugin))]
 namespace Prefabulous.VRC.Editor
 {
+#if PREFABULOUS_NDMF_CROSSAPP_INTEGRATION_SUPPORTED
+    [RunsOnPlatforms(WellKnownPlatforms.VRChatAvatar30)]
+#endif
     public class PrefabulousAccurateEyeTrackingPlugin : PrefabulousAsCodePlugin<PrefabulousAccurateEyeTracking>
     {
         public override string QualifiedName => "dev.hai-vr.prefabulous.vrc.AccurateEyeTracking";

@@ -7,6 +7,9 @@ using UnityEngine;
 [assembly: ExportsPlugin(typeof(PrefabulousChangeAvatarScaleForVRChatPlugin))]
 namespace Prefabulous.VRC.Editor
 {
+#if PREFABULOUS_NDMF_CROSSAPP_INTEGRATION_SUPPORTED
+    [RunsOnPlatforms(WellKnownPlatforms.VRChatAvatar30)]
+#endif
     public class PrefabulousChangeAvatarScaleForVRChatPlugin : Plugin<PrefabulousChangeAvatarScaleForVRChatPlugin>
     {
         public override string QualifiedName => "dev.hai-vr.prefabulous.vrc.ChangeAvatarScaleForVRChat";

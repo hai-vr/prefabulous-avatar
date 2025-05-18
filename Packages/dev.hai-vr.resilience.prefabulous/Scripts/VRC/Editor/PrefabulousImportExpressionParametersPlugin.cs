@@ -7,6 +7,9 @@ using Prefabulous.VRC.Runtime;
 [assembly: ExportsPlugin(typeof(PrefabulousImportExpressionParametersPlugin))]
 namespace Prefabulous.VRC.Editor
 {
+#if PREFABULOUS_NDMF_CROSSAPP_INTEGRATION_SUPPORTED
+    [RunsOnPlatforms(WellKnownPlatforms.VRChatAvatar30)]
+#endif
     public class PrefabulousImportExpressionParametersPlugin : PrefabulousAsCodePlugin<PrefabulousImportExpressionParameters>
     {
         public override string QualifiedName => "dev.hai-vr.prefabulous.vrc.ImportExpressionParameters";
