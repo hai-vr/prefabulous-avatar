@@ -8,6 +8,7 @@ namespace Prefabulous.VRC.Runtime
 #else
     [AddComponentMenu("")]
 #endif
+    [HelpURL("https://docs.hai-vr.dev/redirect/components/PrefabulousToeTracking")]
     public class PrefabulousToeTracking : MonoBehaviour, IEditorOnly
     {
     }

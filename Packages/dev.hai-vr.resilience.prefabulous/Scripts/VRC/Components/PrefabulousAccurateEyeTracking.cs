@@ -5,6 +5,7 @@ using VRC.SDKBase;
 namespace Prefabulous.VRC.Runtime
 {
     [AddComponentMenu("Prefabulous/PA-VRC Accurate Eye Tracking Transforms")]
+    [HelpURL("https://docs.hai-vr.dev/redirect/components/PrefabulousAccurateEyeTracking")]
     public class PrefabulousAccurateEyeTracking : MonoBehaviour, IEditorOnly
     {
         public Transform leftEyeYaw;
